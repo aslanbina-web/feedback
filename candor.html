@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Candor — honest feedback for business owners</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bone:#EFEAE0; --card:#F8F5ED; --ink:#1F2A22; --forest:#3D5A45; --forest-deep:#2B4033;
+    --rust:#B8582F; --line:#CFC7B4; --muted:#6B6255; --white:#FFFDF8; --line-green:#06C755;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--bone); color:var(--ink); font-family:'IBM Plex Sans',sans-serif; line-height:1.5; }
+  h1,h2,h3,.serif{ font-family:'Fraunces',serif; font-weight:600; margin:0; }
+  .mono{ font-family:'IBM Plex Mono',monospace; }
+  button{ font-family:inherit; cursor:pointer; }
+  .wrap{ max-width:640px; margin:0 auto; padding:0 20px; }
+
+  header{ border-bottom:2px solid var(--ink); padding:22px 0 16px; }
+  .header-row{ display:flex; justify-content:space-between; align-items:flex-start; gap:14px; }
+  .wordmark{ font-size:28px; letter-spacing:-0.5px; }
+  .wordmark span{ color:var(--forest); }
+  .who{ text-align:right; font-size:12.5px; color:var(--muted); }
+  .who b{ color:var(--ink); font-weight:600; }
+  .who button{ background:none; border:none; color:var(--forest); text-decoration:underline; font-size:12px; padding:0; margin-top:2px; }
+
+  nav{ display:flex; gap:2px; margin-top:16px; border:2px solid var(--ink); width:fit-content; }
+  nav button{ background:var(--bone); border:none; padding:8px 16px; font-size:13.5px; font-weight:500; border-right:2px solid var(--ink); position:relative; }
+  nav button:last-child{ border-right:none; }
+  nav button.active{ background:var(--ink); color:var(--bone); }
+  .badge{ background:var(--rust); color:var(--white); font-size:10px; border-radius:999px; padding:1px 6px; margin-left:6px; font-family:'IBM Plex Mono',monospace; }
+
+  main{ padding:24px 0 60px; }
+
+  /* ---------- Gate ---------- */
+  .gate{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+  .gate-box{ max-width:420px; width:100%; border:2px solid var(--ink); background:var(--card); padding:36px; }
+  .gate-box h1{ font-size:26px; margin-bottom:8px; }
+  .gate-box .sub{ color:var(--muted); font-size:13.5px; margin-bottom:26px; }
+  .line-btn{
+    width:100%; background:var(--line-green); color:var(--white); border:none; padding:13px; font-size:14.5px;
+    font-weight:600; display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .line-btn .dot{ width:8px; height:8px; background:var(--white); border-radius:50%; opacity:.9; }
+  .line-note{ font-size:11.5px; color:var(--muted); text-align:center; margin:8px 0 22px; }
+  .divider{ display:flex; align-items:center; gap:10px; color:var(--muted); font-size:11.5px; margin-bottom:20px; }
+  .divider::before, .divider::after{ content:''; flex:1; height:1px; background:var(--line); }
+
+  .field{ margin-bottom:16px; }
+  .field label{ display:block; font-size:12.5px; font-weight:600; margin-bottom:6px; }
+  .field .opt{ font-weight:400; color:var(--muted); }
+  input[type=text], textarea, select{
+    width:100%; border:1.5px solid var(--line); background:var(--white); padding:10px 12px;
+    font-family:inherit; font-size:14px; color:var(--ink);
+  }
+  input:focus, textarea:focus, select:focus{ outline:2px solid var(--forest); outline-offset:1px; border-color:var(--forest); }
+  textarea{ resize:vertical; min-height:80px; }
+  .primary-btn{ background:var(--forest); color:var(--white); border:none; padding:11px 22px; font-size:14px; font-weight:600; }
+  .primary-btn:hover{ background:var(--forest-deep); }
+  .primary-btn:disabled{ background:var(--line); cursor:not-allowed; }
+  .status-msg{ font-size:12.5px; color:var(--forest); margin-top:8px; min-height:16px; }
+  .status-msg.error{ color:var(--rust); }
+
+  /* ---------- Quota bar ---------- */
+  .quota-bar{
+    display:flex; justify-content:space-between; gap:12px; border:1.5px solid var(--line); background:var(--card);
+    padding:12px 16px; margin-bottom:22px; font-size:12.5px; color:var(--muted);
+  }
+  .quota-bar b{ color:var(--ink); font-family:'IBM Plex Mono',monospace; }
+
+  /* ---------- Swipe deck ---------- */
+  .deck{ position:relative; height:440px; display:flex; align-items:center; justify-content:center; }
+  .swipe-card{
+    position:absolute; width:100%; max-width:380px; background:var(--white); border:2px solid var(--ink);
+    padding:26px; touch-action:none; user-select:none; cursor:grab;
+  }
+  .swipe-card.back{ transform:scale(0.94) translateY(14px); opacity:0.6; z-index:1; }
+  .swipe-card.front{ z-index:2; }
+  .swipe-card .category-tag{ font-size:11px; color:var(--forest); font-weight:600; display:flex; align-items:center; gap:6px; margin-bottom:10px; }
+  .swipe-card .category-tag::before{ content:''; width:7px; height:7px; background:var(--forest); display:inline-block; }
+  .swipe-card h3{ font-size:22px; margin-bottom:4px; }
+  .swipe-card .by{ font-size:12.5px; color:var(--muted); margin-bottom:14px; }
+  .swipe-card .meta{ font-size:12.5px; color:var(--muted); margin-bottom:4px; }
+  .swipe-card .desc{ font-size:14px; margin-top:14px; padding-top:14px; border-top:1.5px solid var(--line); }
+  .stamp-mark{
+    position:absolute; top:22px; font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:13px;
+    padding:4px 10px; border:2px solid; border-radius:6px; transform:rotate(-10deg); opacity:0; pointer-events:none;
+  }
+  .stamp-mark.accept{ right:22px; color:var(--forest); border-color:var(--forest); }
+  .stamp-mark.reject{ left:22px; color:var(--rust); border-color:var(--rust); }
+
+  .swipe-actions{ display:flex; gap:14px; justify-content:center; margin-top:20px; }
+  .swipe-actions button{
+    width:56px; height:56px; border-radius:50%; border:2px solid var(--ink); background:var(--white); font-size:20px;
+  }
+  .swipe-actions .accept-btn{ border-color:var(--forest); color:var(--forest); }
+  .swipe-actions .reject-btn{ border-color:var(--rust); color:var(--rust); }
+
+  .empty-deck{ text-align:center; color:var(--muted); font-size:14px; max-width:320px; }
+  .empty-deck h3{ color:var(--ink); font-size:19px; margin-bottom:8px; }
+
+  /* ---------- Queue ---------- */
+  .queue-item{ border:1.5px solid var(--line); background:var(--card); padding:18px; margin-bottom:14px; }
+  .queue-item h3{ font-size:17px; margin-bottom:2px; }
+  .queue-item .by{ font-size:12px; color:var(--muted); margin-bottom:10px; }
+  .queue-item .desc{ font-size:13px; color:var(--muted); margin-bottom:12px; }
+
+  .review-form{ background:var(--white); border:1.5px solid var(--line); padding:16px; margin-top:6px; }
+  .star-row{ display:flex; gap:6px; margin-bottom:14px; }
+  .star{ width:32px; height:32px; border:1.5px solid var(--line); background:var(--white); font-size:13px; font-family:'IBM Plex Mono',monospace; font-weight:600; color:var(--muted); }
+  .star.selected{ background:var(--rust); border-color:var(--rust); color:var(--white); }
+  .rec-row{ display:flex; gap:10px; margin-bottom:14px; }
+  .rec-row button{ border:1.5px solid var(--line); background:var(--white); padding:8px 12px; font-size:12.5px; flex:1; }
+  .rec-row button.selected{ border-color:var(--forest); background:#E7EFE7; color:var(--forest); font-weight:600; }
+
+  .reviewed-tag{ font-size:11.5px; color:var(--forest); font-weight:600; }
+  .empty-note{ border:1.5px dashed var(--line); padding:36px 20px; text-align:center; color:var(--muted); font-size:13.5px; }
+  .empty-note h3{ color:var(--ink); font-size:18px; margin-bottom:8px; }
+
+  /* ---------- My card ---------- */
+  .received-item{ border-bottom:1.5px solid var(--line); padding:14px 0; }
+  .received-item:last-child{ border-bottom:none; }
+  .received-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+  .received-who{ font-size:13px; font-weight:600; }
+  .received-who span{ font-weight:400; color:var(--muted); }
+  .rev-stamp{ font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--rust); border:1px solid var(--rust); padding:2px 7px; border-radius:999px; }
+  .received-item p{ font-size:13px; margin:3px 0; }
+  .received-item .lbl{ font-weight:600; font-size:11.5px; color:var(--muted); }
+  .section-title{ font-size:16px; margin:30px 0 14px; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+(function(){
+
+  const CATEGORIES = ["Software / Tools","Physical Product","Service","Marketing","Packaging & Design","Other"];
+
+  let state = {
+    loaded:false,
+    profile:null,           // {id, name, business}
+    listings:[],             // shared: business cards
+    swipes:[],                // shared: {id,date,listingId,reviewerId,reviewerName,reviewerBusiness,type,reviewed,createdAt}
+    reviews:{},               // shared: listingId -> [ {reviewerName,reviewerBusiness,rating,pros,cons,recommend,createdAt} ]
+    tab:'discover',
+    cardDraft:null,
+    reviewOpenFor:null,
+    reviewDraft:{rating:0,pros:'',cons:'',recommend:null},
+    statusMsg:'', statusIsError:false,
+    dragging:false, dragStartX:0, dragDX:0,
+  };
+
+  const app = document.getElementById('app');
+
+  function esc(s){ const d=document.createElement('div'); d.innerText = s==null?'':s; return d.innerHTML; }
+  function uid(){ return 'id_'+Date.now()+'_'+Math.random().toString(36).slice(2,9); }
+  function today(){ return new Date().toISOString().slice(0,10); }
+  function calcQuota(memberCount){ return Math.max(1, Math.round(memberCount/25)); }
+
+  async function loadAll(){
+    try{ const p = await window.storage.get('profile', false); state.profile = p ? JSON.parse(p.value) : null; }catch(e){ state.profile=null; }
+    try{ const l = await window.storage.get('listings', true); state.listings = l ? JSON.parse(l.value) : []; }catch(e){ state.listings=[]; }
+    try{ const s = await window.storage.get('swipes', true); state.swipes = s ? JSON.parse(s.value) : []; }catch(e){ state.swipes=[]; }
+    try{ const r = await window.storage.get('reviews', true); state.reviews = r ? JSON.parse(r.value) : {}; }catch(e){ state.reviews={}; }
+    state.loaded = true;
+    render();
+  }
+
+  async function saveProfile(){ try{ await window.storage.set('profile', JSON.stringify(state.profile), false); }catch(e){ console.error(e);} }
+  async function saveListings(){ try{ await window.storage.set('listings', JSON.stringify(state.listings), true); }catch(e){ console.error(e);} }
+  async function saveSwipes(){ try{ await window.storage.set('swipes', JSON.stringify(state.swipes), true); }catch(e){ console.error(e);} }
+  async function saveReviews(){ try{ await window.storage.set('reviews', JSON.stringify(state.reviews), true); }catch(e){ console.error(e);} }
+
+  function myListing(){ return state.listings.find(l=>l.ownerId === state.profile.id) || null; }
+  function givenToday(){ const t=today(); return state.swipes.filter(s=>s.reviewerId===state.profile.id && s.type==='accept' && s.date===t).length; }
+  function receivedToday(listingId){ const t=today(); return state.swipes.filter(s=>s.listingId===listingId && s.type==='accept' && s.date===t).length; }
+  function swipedTodayIds(){ const t=today(); return new Set(state.swipes.filter(s=>s.reviewerId===state.profile.id && s.date===t).map(s=>s.listingId)); }
+
+  function deckForMe(){
+    const mine = myListing();
+    if(!mine) return [];
+    const quota = calcQuota(state.listings.length);
+    if(givenToday() >= quota) return [];
+    const already = swipedTodayIds();
+    return state.listings.filter(l => l.id !== mine.id && !already.has(l.id) && receivedToday(l.id) < quota);
+  }
+
+  function myQueue(){
+    return state.swipes.filter(s=>s.reviewerId===state.profile.id && s.type==='accept' && !s.reviewed);
+  }
+  function myReviewedHistory(){
+    return state.swipes.filter(s=>s.reviewerId===state.profile.id && s.type==='accept' && s.reviewed);
+  }
+
+  function render(){
+    if(!state.loaded){ app.innerHTML = `<div class="gate"><p class="mono" style="color:var(--muted)">loading…</p></div>`; return; }
+    if(!state.profile){ renderGate(); return; }
+    if(!myListing()){ renderCreateCardGate(); return; }
+    renderMain();
+  }
+
+  // ---------------- Gate: sign up ----------------
+  function renderGate(){
+    app.innerHTML = `
+      <div class="gate"><div class="gate-box">
+        <h1>Candor</h1>
+        <div class="sub">Business owners testing each other's products and services — and saying what they really think.</div>
+        <button class="line-btn" id="line-btn"><span class="dot"></span> Continue with LINE</button>
+        <div class="line-note">LINE sign-in is coming soon — it's not wired up yet.</div>
+        <div class="divider">for now, enter your info manually</div>
+        <div class="field"><label for="g-name">Your name</label><input type="text" id="g-name" placeholder="Mei Lin"></div>
+        <div class="field"><label for="g-biz">Your business</label><input type="text" id="g-biz" placeholder="Lin & Co. Ceramics"></div>
+        <button class="primary-btn" id="g-submit">Continue</button>
+        <div class="status-msg error" id="g-status"></div>
+      </div></div>
+    `;
+    document.getElementById('line-btn').onclick = ()=>{
+      const s = document.getElementById('g-status');
+      s.className='status-msg'; s.textContent = 'LINE login isn\'t connected yet — use the fields below for now.';
+      document.getElementById('g-name').focus();
+    };
+    document.getElementById('g-submit').onclick = ()=>{
+      const name = document.getElementById('g-name').value.trim();
+      const biz = document.getElementById('g-biz').value.trim();
+      const s = document.getElementById('g-status');
+      if(!name || !biz){ s.className='status-msg error'; s.textContent='Fill in both fields to continue.'; return; }
+      state.profile = {id: uid(), name, business: biz};
+      saveProfile();
+      render();
+    };
+  }
+
+  // ---------------- Gate: create business card ----------------
+  function renderCreateCardGate(){
+    const opts = CATEGORIES.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+    app.innerHTML = `
+      <div class="gate"><div class="gate-box" style="max-width:480px;">
+        <h1 style="font-size:24px;">Make your business card</h1>
+        <div class="sub">This is what other owners will see and swipe on to decide whether to test your business.</div>
+        <div class="field"><label for="c-name">Business name</label><input type="text" id="c-name" placeholder="Lin & Co. Ceramics"></div>
+        <div class="field"><label for="c-cat">Category</label><select id="c-cat">${opts}</select></div>
+        <div class="field"><label for="c-addr">Address <span class="opt">(optional)</span></label><input type="text" id="c-addr" placeholder="Taichung, Taiwan"></div>
+        <div class="field"><label for="c-url">Website / URL <span class="opt">(optional)</span></label><input type="text" id="c-url" placeholder="linnco.tw"></div>
+        <div class="field"><label for="c-desc">What should reviewers test?</label><textarea id="c-desc" placeholder="What it is, and what kind of feedback would help you most."></textarea></div>
+        <button class="primary-btn" id="c-submit">Create card & start discovering</button>
+        <div class="status-msg error" id="c-status"></div>
+      </div></div>
+    `;
+    document.getElementById('c-submit').onclick = async ()=>{
+      const name = document.getElementById('c-name').value.trim();
+      const category = document.getElementById('c-cat').value;
+      const address = document.getElementById('c-addr').value.trim();
+      const url = document.getElementById('c-url').value.trim();
+      const description = document.getElementById('c-desc').value.trim();
+      const s = document.getElementById('c-status');
+      if(!name || !description){ s.className='status-msg error'; s.textContent='Add a business name and something for reviewers to test.'; return; }
+      state.listings.push({
+        id:'biz_'+state.profile.id, ownerId: state.profile.id, ownerName: state.profile.name,
+        businessName:name, category, address, url, description, createdAt: Date.now()
+      });
+      s.className='status-msg'; s.textContent='Saving…';
+      await saveListings();
+      render();
+    };
+  }
+
+  // ---------------- Main app shell ----------------
+  function renderMain(){
+    const qCount = myQueue().length;
+    app.innerHTML = `
+      <div class="wrap">
+        <header>
+          <div class="header-row">
+            <div class="wordmark">Candor<span>.</span></div>
+            <div class="who"><div><b>${esc(state.profile.name)}</b> · ${esc(state.profile.business)}</div><button id="switch-profile">not you?</button></div>
+          </div>
+          <nav>
+            <button data-tab="discover" class="${state.tab==='discover'?'active':''}">Discover</button>
+            <button data-tab="queue" class="${state.tab==='queue'?'active':''}">My Queue${qCount?` <span class="badge">${qCount}</span>`:''}</button>
+            <button data-tab="card" class="${state.tab==='card'?'active':''}">My Card</button>
+          </nav>
+        </header>
+        <main id="main-root"></main>
+      </div>
+    `;
+    document.getElementById('switch-profile').onclick = async ()=>{
+      state.profile = null;
+      try{ await window.storage.set('profile', JSON.stringify(null), false); }catch(e){}
+      render();
+    };
+    document.querySelectorAll('nav button').forEach(b=>{ b.onclick = ()=>{ state.tab=b.dataset.tab; state.reviewOpenFor=null; render(); }; });
+
+    const root = document.getElementById('main-root');
+    if(state.tab==='discover') renderDiscover(root);
+    else if(state.tab==='queue') renderQueue(root);
+    else renderCard(root);
+  }
+
+  // ---------------- Discover ----------------
+  function renderDiscover(root){
+    const quota = calcQuota(state.listings.length);
+    const given = givenToday();
+    const mine = myListing();
+    const received = receivedToday(mine.id);
+    const deck = deckForMe();
+
+    let deckHTML;
+    if(deck.length === 0){
+      let msg;
+      if(given >= quota){
+        msg = `You've used today's testing slots (${given}/${quota}). A new set unlocks tomorrow.`;
+      } else if(state.listings.length <= 1){
+        msg = `No other businesses have joined yet — invite more owners to start discovering cards.`;
+      } else {
+        msg = `You're caught up for now. Check back later or tomorrow for new cards.`;
+      }
+      deckHTML = `<div class="deck"><div class="empty-deck"><h3>Nothing to review right now</h3><p>${msg}</p></div></div>`;
+    } else {
+      const top = deck[0];
+      const back = deck[1];
+      deckHTML = `
+        <div class="deck">
+          ${back ? cardHTML(back, 'back') : ''}
+          ${cardHTML(top, 'front', true)}
+        </div>
+        <div class="swipe-actions">
+          <button class="reject-btn" id="btn-reject">✕</button>
+          <button class="accept-btn" id="btn-accept">✓</button>
+        </div>
+      `;
+    }
+
+    root.innerHTML = `
+      <div class="quota-bar">
+        <div>Today's quota <b>${given}/${quota}</b> given</div>
+        <div>Your card <b>${received}/${quota}</b> matched</div>
+      </div>
+      ${deckHTML}
+    `;
+
+    if(deck.length > 0){
+      wireSwipeCard(deck[0]);
+      document.getElementById('btn-accept').onclick = ()=> commitSwipe(deck[0], 'accept');
+      document.getElementById('btn-reject').onclick = ()=> commitSwipe(deck[0], 'reject');
+    }
+  }
+
+  function cardHTML(l, cls, front){
+    return `
+      <div class="swipe-card ${cls}" ${front?'id="front-card"':''}>
+        ${front ? `<div class="stamp-mark accept" id="mark-accept">TEST IT</div><div class="stamp-mark reject" id="mark-reject">SKIP</div>` : ''}
+        <div class="category-tag">${esc(l.category)}</div>
+        <h3>${esc(l.businessName)}</h3>
+        <div class="by">by ${esc(l.ownerName)}</div>
+        ${l.address ? `<div class="meta">📍 ${esc(l.address)}</div>` : ''}
+        ${l.url ? `<div class="meta">🔗 ${esc(l.url)}</div>` : ''}
+        <div class="desc">${esc(l.description)}</div>
+      </div>
+    `;
+  }
+
+  function wireSwipeCard(listing){
+    const el = document.getElementById('front-card');
+    if(!el) return;
+    let startX=0, dx=0, dragging=false;
+
+    function onDown(e){
+      dragging = true; el.style.cursor='grabbing';
+      startX = (e.touches ? e.touches[0].clientX : e.clientX);
+    }
+    function onMove(e){
+      if(!dragging) return;
+      const x = (e.touches ? e.touches[0].clientX : e.clientX);
+      dx = x - startX;
+      el.style.transform = `translateX(${dx}px) rotate(${dx/18}deg)`;
+      const acceptMark = document.getElementById('mark-accept');
+      const rejectMark = document.getElementById('mark-reject');
+      if(acceptMark) acceptMark.style.opacity = Math.max(0, Math.min(1, dx/80));
+      if(rejectMark) rejectMark.style.opacity = Math.max(0, Math.min(1, -dx/80));
+    }
+    function onUp(){
+      if(!dragging) return;
+      dragging = false; el.style.cursor='grab';
+      if(dx > 90){ flyOut(1); commitSwipe(listing, 'accept'); }
+      else if(dx < -90){ flyOut(-1); commitSwipe(listing, 'reject'); }
+      else{ el.style.transition='transform .2s ease'; el.style.transform=''; setTimeout(()=>{ if(el) el.style.transition=''; },200); }
+      dx = 0;
+    }
+    function flyOut(dir){
+      el.style.transition='transform .25s ease, opacity .25s ease';
+      el.style.transform = `translateX(${dir*600}px) rotate(${dir*30}deg)`;
+      el.style.opacity='0';
+    }
+
+    el.addEventListener('mousedown', onDown);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    el.addEventListener('touchstart', onDown, {passive:true});
+    el.addEventListener('touchmove', onMove, {passive:true});
+    el.addEventListener('touchend', onUp);
+  }
+
+  async function commitSwipe(listing, type){
+    state.swipes.push({
+      id: uid(), date: today(), listingId: listing.id,
+      reviewerId: state.profile.id, reviewerName: state.profile.name, reviewerBusiness: state.profile.business,
+      type, reviewed: type==='accept' ? false : null, createdAt: Date.now()
+    });
+    await saveSwipes();
+    render();
+  }
+
+  // ---------------- Queue ----------------
+  function renderQueue(root){
+    const pending = myQueue();
+    const done = myReviewedHistory();
+    let pendingHTML;
+    if(pending.length === 0){
+      pendingHTML = `<div class="empty-note"><h3>Nothing waiting</h3><p>Businesses you accept in Discover will show up here so you can leave real feedback once you've actually tried them.</p></div>`;
+    } else {
+      pendingHTML = pending.map(sw=>{
+        const l = state.listings.find(x=>x.id===sw.listingId);
+        if(!l) return '';
+        const isOpen = state.reviewOpenFor === sw.id;
+        return `
+          <div class="queue-item">
+            <div class="category-tag">${esc(l.category)}</div>
+            <h3>${esc(l.businessName)}</h3>
+            <div class="by">by ${esc(l.ownerName)}</div>
+            <div class="desc">${esc(l.description)}</div>
+            ${isOpen ? reviewFormHTML() : `<button class="primary-btn" data-open="${sw.id}">Leave feedback</button>`}
+          </div>
+        `;
+      }).join('');
+    }
+
+    const doneHTML = done.length === 0 ? '' : `
+      <h3 class="section-title">Feedback you've given (${done.length})</h3>
+      ${done.map(sw=>{
+        const l = state.listings.find(x=>x.id===sw.listingId);
+        return l ? `<div class="queue-item" style="opacity:.75;"><div class="reviewed-tag">✓ Reviewed</div><h3 style="margin-top:6px;">${esc(l.businessName)}</h3></div>` : '';
+      }).join('')}
+    `;
+
+    root.innerHTML = pendingHTML + doneHTML;
+
+    document.querySelectorAll('[data-open]').forEach(b=>{
+      b.onclick = ()=>{ state.reviewOpenFor = b.dataset.open; state.reviewDraft={rating:0,pros:'',cons:'',recommend:null}; state.statusMsg=''; render(); };
+    });
+    if(state.reviewOpenFor) wireReviewForm(pending.find(s=>s.id===state.reviewOpenFor));
+  }
+
+  function reviewFormHTML(){
+    const stars = [1,2,3,4,5].map(n=>`<button class="star ${state.reviewDraft.rating>=n?'selected':''}" data-n="${n}">${n}</button>`).join('');
+    return `
+      <div class="review-form">
+        <div class="star-row">${stars}</div>
+        <div class="field"><label>What worked well</label><textarea id="rv-pros">${esc(state.reviewDraft.pros)}</textarea></div>
+        <div class="field"><label>What didn't, or could be better</label><textarea id="rv-cons">${esc(state.reviewDraft.cons)}</textarea></div>
+        <div class="rec-row">
+          <button data-rec="true" class="${state.reviewDraft.recommend===true?'selected':''}">Would recommend</button>
+          <button data-rec="false" class="${state.reviewDraft.recommend===false?'selected':''}">Would not recommend</button>
+        </div>
+        <button class="primary-btn" id="rv-submit">Submit feedback</button>
+        <div class="status-msg ${state.statusIsError?'error':''}">${esc(state.statusMsg)}</div>
+      </div>
+    `;
+  }
+
+  function wireReviewForm(sw){
+    if(!sw) return;
+    document.querySelectorAll('.star').forEach(s=>{
+      s.onclick = ()=>{
+        state.reviewDraft.pros = document.getElementById('rv-pros').value;
+        state.reviewDraft.cons = document.getElementById('rv-cons').value;
+        state.reviewDraft.rating = parseInt(s.dataset.n,10); render();
+      };
+    });
+    document.querySelectorAll('.rec-row button').forEach(b=>{
+      b.onclick = ()=>{
+        state.reviewDraft.pros = document.getElementById('rv-pros').value;
+        state.reviewDraft.cons = document.getElementById('rv-cons').value;
+        state.reviewDraft.recommend = b.dataset.rec==='true'; render();
+      };
+    });
+    document.getElementById('rv-submit').onclick = async ()=>{
+      const pros = document.getElementById('rv-pros').value.trim();
+      const cons = document.getElementById('rv-cons').value.trim();
+      if(state.reviewDraft.rating===0){ state.statusMsg='Pick a rating from 1 to 5.'; state.statusIsError=true; render(); return; }
+      if(!pros && !cons){ state.statusMsg='Add a note on what worked or what didn\'t.'; state.statusIsError=true; render(); return; }
+      const review = { reviewerName: state.profile.name, reviewerBusiness: state.profile.business, rating: state.reviewDraft.rating, pros, cons, recommend: state.reviewDraft.recommend, createdAt: Date.now() };
+      if(!state.reviews[sw.listingId]) state.reviews[sw.listingId] = [];
+      state.reviews[sw.listingId].push(review);
+      sw.reviewed = true;
+      state.statusMsg='Saving…'; state.statusIsError=false; render();
+      await saveReviews();
+      await saveSwipes();
+      state.reviewOpenFor = null;
+      render();
+    };
+  }
+
+  // ---------------- My Card ----------------
+  function renderCard(root){
+    const l = myListing();
+    const opts = CATEGORIES.map(c=>`<option value="${esc(c)}" ${l.category===c?'selected':''}>${esc(c)}</option>`).join('');
+    const myReviews = (state.reviews[l.id] || []).slice().reverse();
+    root.innerHTML = `
+      <div class="field"><label for="e-name">Business name</label><input type="text" id="e-name" value="${esc(l.businessName)}"></div>
+      <div class="field"><label for="e-cat">Category</label><select id="e-cat">${opts}</select></div>
+      <div class="field"><label for="e-addr">Address <span class="opt">(optional)</span></label><input type="text" id="e-addr" value="${esc(l.address||'')}"></div>
+      <div class="field"><label for="e-url">Website / URL <span class="opt">(optional)</span></label><input type="text" id="e-url" value="${esc(l.url||'')}"></div>
+      <div class="field"><label for="e-desc">What should reviewers test?</label><textarea id="e-desc">${esc(l.description)}</textarea></div>
+      <button class="primary-btn" id="e-save">Save changes</button>
+      <div class="status-msg" id="e-status"></div>
+
+      <h3 class="section-title">Feedback you've received (${myReviews.length})</h3>
+      ${myReviews.length === 0 ? `<div class="empty-note"><p>No feedback yet — once other owners test your business, their notes will show up here.</p></div>` :
+        myReviews.map(r=>`
+          <div class="received-item">
+            <div class="received-top">
+              <div class="received-who">${esc(r.reviewerName)} <span>— ${esc(r.reviewerBusiness)}</span></div>
+              <div class="rev-stamp">${r.rating}/5</div>
+            </div>
+            ${r.recommend===true?'<div class="reviewed-tag">Would recommend</div>':(r.recommend===false?'<div class="reviewed-tag" style="color:var(--rust)">Would not recommend</div>':'')}
+            ${r.pros?`<p><span class="lbl">Worked well:</span> ${esc(r.pros)}</p>`:''}
+            ${r.cons?`<p><span class="lbl">Could improve:</span> ${esc(r.cons)}</p>`:''}
+          </div>
+        `).join('')}
+    `;
+    document.getElementById('e-save').onclick = async ()=>{
+      l.businessName = document.getElementById('e-name').value.trim();
+      l.category = document.getElementById('e-cat').value;
+      l.address = document.getElementById('e-addr').value.trim();
+      l.url = document.getElementById('e-url').value.trim();
+      l.description = document.getElementById('e-desc').value.trim();
+      const s = document.getElementById('e-status');
+      if(!l.businessName || !l.description){ s.className='status-msg error'; s.textContent='Business name and description can\'t be empty.'; return; }
+      s.className='status-msg'; s.textContent='Saving…';
+      await saveListings();
+      s.textContent='Saved.';
+    };
+  }
+
+  loadAll();
+})();
+</script>
+</body>
+</html>
