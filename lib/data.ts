@@ -2,7 +2,13 @@ import "server-only";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import type { AdminSubmission, AdminUser, DiscoverBusiness, QueueTask } from "@/lib/types";
 
+export async function expireOverdueTasks() {
+  const { error } = await getSupabaseAdmin().rpc("expire_overdue_tasks");
+  if (error) throw error;
+}
+
 export async function getDiscoverFeed(userId: string) {
+  await expireOverdueTasks();
   const { data, error } = await getSupabaseAdmin().rpc("get_discover_feed", {
     p_giver_id: userId,
     p_limit: 20,
@@ -12,9 +18,10 @@ export async function getDiscoverFeed(userId: string) {
 }
 
 export async function getQueue(userId: string) {
+  await expireOverdueTasks();
   const { data, error } = await getSupabaseAdmin()
     .from("tasks")
-    .select("id,status,accepted_at,submitted_at,completed_at,proof_url,business_name,business_category,business_city,business_district,review_url_snapshot")
+    .select("id,status,accepted_at,expires_at,submitted_at,completed_at,proof_url,business_name,business_category,business_city,business_district,review_url_snapshot")
     .eq("giver_id", userId)
     .in("status", ["accepted", "submitted"])
     .order("accepted_at", { ascending: false });
@@ -25,7 +32,7 @@ export async function getQueue(userId: string) {
 export async function getHistory(userId: string) {
   const { data, error } = await getSupabaseAdmin()
     .from("tasks")
-    .select("id,status,accepted_at,submitted_at,completed_at,proof_url,business_name,business_category,business_city,business_district,review_url_snapshot")
+    .select("id,status,accepted_at,expires_at,submitted_at,completed_at,proof_url,business_name,business_category,business_city,business_district,review_url_snapshot")
     .eq("giver_id", userId)
     .in("status", ["completed", "rejected", "expired"])
     .order("accepted_at", { ascending: false });
