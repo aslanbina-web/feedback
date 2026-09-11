@@ -23,3 +23,25 @@ export function validHttpUrl(value: unknown) {
     return null;
   }
 }
+
+export function validGoogleReviewUrl(value: unknown) {
+  if (typeof value !== "string") return null;
+  try {
+    const url = new URL(value.trim());
+    if (url.protocol !== "https:") return null;
+    const host = url.hostname.toLowerCase();
+    const isGoogleHost = host === "google.com" || host.endsWith(".google.com");
+    const isGoogleMapsPath = url.pathname === "/maps" || url.pathname.startsWith("/maps/");
+    const isMapsShortLink = host === "maps.app.goo.gl" && url.pathname.length > 1;
+    const isLegacyShortLink = host === "goo.gl" && isGoogleMapsPath;
+    if ((!isGoogleHost || !isGoogleMapsPath) && !isMapsShortLink && !isLegacyShortLink) return null;
+    url.hash = "";
+    for (const key of [...url.searchParams.keys()]) {
+      if (key.startsWith("utm_") || ["entry", "g_ep", "g_st", "share"].includes(key)) url.searchParams.delete(key);
+    }
+    url.hostname = host;
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
