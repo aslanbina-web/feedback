@@ -17,8 +17,8 @@ export function TaskSubmitForm({ taskId }: { taskId: string }) {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ proofUrl: form.get("proofUrl") }),
     });
-    const result = (await response.json()) as { error?: string };
-    setMessage(response.ok ? "Submitted for approval." : result.error || "Submission failed.");
+    const result = (await response.json()) as { error?: string; status?: string };
+    setMessage(response.ok ? (result.status === "expired" ? "Time expired. The task returned to Discover." : "Completed. You earned 1 credit.") : result.error || "Submission failed.");
     setBusy(false);
     if (response.ok) router.refresh();
   }
