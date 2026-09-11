@@ -20,6 +20,7 @@ export type QueueTask = {
   id: string;
   status: "accepted" | "submitted" | "completed" | "rejected" | "expired";
   accepted_at: string;
+  expires_at: string | null;
   submitted_at: string | null;
   completed_at: string | null;
   proof_url: string | null;
