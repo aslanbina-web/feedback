@@ -10,6 +10,7 @@ const errors: Record<string, string> = {
   invalid_state: "The LINE login expired. Please try again.",
   official_account_required: "Add our Official LINE first, then return and sign in.",
   line_login_failed: "LINE login could not be completed. Please try again.",
+  configuration: "LINE sign-in is being connected. Please check again shortly.",
 };
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ login_error?: string }> }) {

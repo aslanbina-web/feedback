@@ -156,12 +156,17 @@ export type Database = {
         Row: {
           accepted_at: string
           admin_note: string | null
+          business_category: string
+          business_city: string
+          business_district: string
           business_id: string
+          business_name: string
           completed_at: string | null
           created_at: string
           giver_id: string
           id: string
           proof_url: string | null
+          review_url_snapshot: string
           reviewed_at: string | null
           reviewed_by: string | null
           status: Database["public"]["Enums"]["task_status"]
@@ -170,12 +175,17 @@ export type Database = {
         Insert: {
           accepted_at?: string
           admin_note?: string | null
+          business_category: string
+          business_city: string
+          business_district: string
           business_id: string
+          business_name: string
           completed_at?: string | null
           created_at?: string
           giver_id: string
           id?: string
           proof_url?: string | null
+          review_url_snapshot: string
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: Database["public"]["Enums"]["task_status"]
@@ -184,12 +194,17 @@ export type Database = {
         Update: {
           accepted_at?: string
           admin_note?: string | null
+          business_category?: string
+          business_city?: string
+          business_district?: string
           business_id?: string
+          business_name?: string
           completed_at?: string | null
           created_at?: string
           giver_id?: string
           id?: string
           proof_url?: string | null
+          review_url_snapshot?: string
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: Database["public"]["Enums"]["task_status"]

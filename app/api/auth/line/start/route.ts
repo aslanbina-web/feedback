@@ -1,8 +1,11 @@
 import { randomBytes } from "node:crypto";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { config } from "@/lib/config";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  if (!process.env.LINE_LOGIN_CHANNEL_ID || !process.env.LINE_LOGIN_CHANNEL_SECRET) {
+    return NextResponse.redirect(new URL("/?login_error=configuration", request.url));
+  }
   const state = randomBytes(24).toString("hex");
   const nonce = randomBytes(24).toString("hex");
   const redirectUri = `${config.appUrl}/api/auth/line/callback`;

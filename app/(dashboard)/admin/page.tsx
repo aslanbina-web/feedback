@@ -20,7 +20,7 @@ export default async function AdminPage() {
       ) : (
         submissions.map((item) => (
           <article className="task" key={item.id}>
-            <div><h2>{item.business.name}</h2><span className="mono">by {item.giver.display_name}</span></div>
+            <div><h2>{item.business_name}</h2><span className="mono">by {item.giver.display_name}</span></div>
             <a className="review-link" target="_blank" rel="noreferrer" href={item.proof_url}>Inspect proof →</a>
             <AdminReview taskId={item.id} />
           </article>

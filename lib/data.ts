@@ -14,7 +14,7 @@ export async function getDiscoverFeed(userId: string) {
 export async function getQueue(userId: string) {
   const { data, error } = await getSupabaseAdmin()
     .from("tasks")
-    .select("id,status,accepted_at,submitted_at,completed_at,proof_url,business:businesses!inner(name,category,city,district,review_url)")
+    .select("id,status,accepted_at,submitted_at,completed_at,proof_url,business_name,business_category,business_city,business_district,review_url_snapshot")
     .eq("giver_id", userId)
     .in("status", ["accepted", "submitted"])
     .order("accepted_at", { ascending: false });
@@ -25,7 +25,7 @@ export async function getQueue(userId: string) {
 export async function getHistory(userId: string) {
   const { data, error } = await getSupabaseAdmin()
     .from("tasks")
-    .select("id,status,accepted_at,submitted_at,completed_at,proof_url,business:businesses!inner(name,category,city,district,review_url)")
+    .select("id,status,accepted_at,submitted_at,completed_at,proof_url,business_name,business_category,business_city,business_district,review_url_snapshot")
     .eq("giver_id", userId)
     .in("status", ["completed", "rejected", "expired"])
     .order("accepted_at", { ascending: false });
@@ -53,7 +53,7 @@ export async function getDailyStats(userId: string) {
 export async function getAdminSubmissions() {
   const { data, error } = await getSupabaseAdmin()
     .from("tasks")
-    .select("id,status,submitted_at,proof_url,giver:users!tasks_giver_id_fkey(display_name),business:businesses!inner(name)")
+    .select("id,status,submitted_at,proof_url,business_name,giver:users!tasks_giver_id_fkey(display_name)")
     .eq("status", "submitted")
     .order("submitted_at", { ascending: true });
   if (error) throw error;

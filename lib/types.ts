@@ -23,13 +23,11 @@ export type QueueTask = {
   submitted_at: string | null;
   completed_at: string | null;
   proof_url: string | null;
-  business: {
-    name: string;
-    category: string;
-    city: string;
-    district: string;
-    review_url: string;
-  };
+  business_name: string;
+  business_category: string;
+  business_city: string;
+  business_district: string;
+  review_url_snapshot: string;
 };
 
 export type AdminSubmission = {
@@ -37,8 +35,8 @@ export type AdminSubmission = {
   status: "submitted";
   submitted_at: string;
   proof_url: string;
+  business_name: string;
   giver: { display_name: string };
-  business: { name: string };
 };
 
 export type AdminUser = {
