@@ -44,6 +44,16 @@ All database access is server-only. Exposed tables have RLS enabled and no brows
 
 7. Use Admin for a documented initial onboarding credit grant. Completed gives sustain the exchange after that.
 
+### LINE callback
+
+Register exactly this URL in the LINE Login channel, replacing the domain with the deployed GiveGet domain:
+
+```text
+https://YOUR-DOMAIN/api/auth/line/callback
+```
+
+The server validates a unique state and nonce, verifies both tokens with LINE, checks Official Account friendship for new members, then creates or updates the internal UUID account. LINE access and refresh tokens are not stored.
+
 ## Product rules encoded server-side
 
 - Accepting a task counts against both daily caps.

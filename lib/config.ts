@@ -6,7 +6,12 @@ function required(name: string) {
 
 export const config = {
   get appUrl() {
-    return process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const value = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const url = new URL(value);
+    if (process.env.NODE_ENV === "production" && url.protocol !== "https:") {
+      throw new Error("NEXT_PUBLIC_APP_URL must use HTTPS in production");
+    }
+    return url.origin;
   },
   get supabaseUrl() {
     return required("SUPABASE_URL");

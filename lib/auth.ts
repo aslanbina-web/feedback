@@ -6,7 +6,7 @@ import { config } from "@/lib/config";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import type { AppUser } from "@/lib/types";
 
-const SESSION_COOKIE = "giveget_session";
+const SESSION_COOKIE = process.env.NODE_ENV === "production" ? "__Host-giveget_session" : "giveget_session";
 
 function secret() {
   return new TextEncoder().encode(config.sessionSecret);

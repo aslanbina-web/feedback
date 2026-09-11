@@ -2,8 +2,14 @@ import { randomBytes } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { config } from "@/lib/config";
 
+const COOKIE_PREFIX = process.env.NODE_ENV === "production" ? "__Host-" : "";
+
 export async function GET(request: NextRequest) {
-  if (!process.env.LINE_LOGIN_CHANNEL_ID || !process.env.LINE_LOGIN_CHANNEL_SECRET) {
+  if (
+    !process.env.LINE_LOGIN_CHANNEL_ID ||
+    !process.env.LINE_LOGIN_CHANNEL_SECRET ||
+    (process.env.NODE_ENV === "production" && !process.env.NEXT_PUBLIC_APP_URL)
+  ) {
     return NextResponse.redirect(new URL("/?login_error=configuration", request.url));
   }
   const state = randomBytes(24).toString("hex");
@@ -22,7 +28,9 @@ export async function GET(request: NextRequest) {
 
   const response = NextResponse.redirect(url);
   const cookieOptions = { httpOnly: true, sameSite: "lax" as const, secure: process.env.NODE_ENV === "production", path: "/", maxAge: 600 };
-  response.cookies.set("line_oauth_state", state, cookieOptions);
-  response.cookies.set("line_oauth_nonce", nonce, cookieOptions);
+  response.cookies.set(`${COOKIE_PREFIX}line_oauth_state`, state, cookieOptions);
+  response.cookies.set(`${COOKIE_PREFIX}line_oauth_nonce`, nonce, cookieOptions);
+  response.headers.set("Cache-Control", "no-store");
+  response.headers.set("Referrer-Policy", "no-referrer");
   return response;
 }
