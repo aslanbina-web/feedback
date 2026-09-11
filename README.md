@@ -67,3 +67,5 @@ The server validates a unique state and nonce, verifies both tokens with LINE, c
 ## Legacy prototype
 
 `candor.html` is retained only for design comparison and is not part of the production data path.
+
+Deployment configured.
