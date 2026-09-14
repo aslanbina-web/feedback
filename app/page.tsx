@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
-import { getDailyStats } from "@/lib/data";
+import { getDailyStats, getMonthlyStats } from "@/lib/data";
 import { config } from "@/lib/config";
 import { AppNav } from "@/components/app-nav";
+import Image from "next/image";
+import { UiIcon } from "@/components/ui-icons";
 
 export const dynamic = "force-dynamic";
 
@@ -32,20 +34,21 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ l
     );
   }
 
-  const stats = await getDailyStats(user.id);
+  const [stats, monthly] = await Promise.all([getDailyStats(user.id), getMonthlyStats(user.id)]);
+  const planDays = Math.max(0, Math.ceil((new Date(user.plan_expires_at).getTime() - Date.now()) / 86_400_000));
   return (
     <main className="shell">
-      <header className="masthead"><span className="brand">GiveGet</span><div className="credits"><strong>{user.credit_balance}</strong><span className="eyebrow">credits</span></div></header>
+      <header className="masthead"><span className="brand">GiveGet</span><div className="header-actions"><Link className="header-icon" href="/notifications" aria-label="Notifications"><UiIcon name="bell" /></Link></div></header>
       <div className="content">
-        <p className="eyebrow">Welcome back, {user.display_name}</p>
-        <h1 className="page-title">Give one.<br />Get one.</h1>
-        <p className="lede">Leave a useful review for another member. When it is approved, one credit is added to your balance.</p>
-        <div className="stats">
-          <div className="stat"><span className="eyebrow">Gives today</span><strong>{stats.gives}/{user.daily_give_limit}</strong></div>
-          <div className="stat"><span className="eyebrow">Receives today</span><strong>{stats.receives}/{user.daily_receive_limit}</strong></div>
-          <div className="stat"><span className="eyebrow">Saved credits</span><strong>{user.credit_balance}</strong></div>
+        <div className="home-tagline"><Image src="/giveget-star.svg" alt="GiveGet star" width={74} height={68} priority /><p>Good reviews.<br />Stronger businesses.</p></div>
+        <section className="credit-panel"><span>Your Credits</span><strong><UiIcon name="star" />{user.credit_balance}</strong><Link href="/invite">Get More →</Link></section>
+        <div className="daily-stats">
+          <div className="daily-stat give"><span className="daily-symbol">➤</span><span>Gives Today</span><strong>{stats.gives} / 3</strong></div>
+          <div className="daily-stat receive"><span className="daily-symbol">♥</span><span>Receives Today</span><strong>{stats.receives} / 3</strong></div>
         </div>
-        <Link className="button rust" href="/discover">Leave a review</Link>
+        <Link className="button coral full home-cta" href="/discover">Leave a Review →</Link>
+        <section className="monthly-goal"><h2>Your Progress</h2><div><span>Monthly Goal</span><strong>{monthly.gives} / 30</strong></div><div className="progress-track"><span style={{ width: `${Math.min(monthly.gives / 30 * 100, 100)}%` }} /></div><small>Saved passes never expire.</small></section>
+        <aside className="home-tip"><span aria-hidden="true">🌟</span><p><strong>One thoughtful review matters.</strong><br />Support a local business today!</p></aside>
         {user.role === "admin" ? <p><Link className="admin-link" href="/admin">Open Admin Desk →</Link></p> : null}
       </div>
       <AppNav />

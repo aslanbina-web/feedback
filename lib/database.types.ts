@@ -64,6 +64,35 @@ export type Database = {
           },
         ]
       }
+      business_review_samples: {
+        Row: {
+          business_id: string
+          created_at: string
+          id: string
+          sample_text: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          id?: string
+          sample_text: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          id?: string
+          sample_text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_review_samples_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       credit_ledger: {
         Row: {
           created_at: string
@@ -163,10 +192,13 @@ export type Database = {
           business_name: string
           completed_at: string | null
           created_at: string
+          expires_at: string | null
           giver_id: string
           id: string
           proof_url: string | null
+          receive_allowance_reserved: boolean
           review_url_snapshot: string
+          sample_review_text: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           status: Database["public"]["Enums"]["task_status"]
@@ -182,10 +214,13 @@ export type Database = {
           business_name: string
           completed_at?: string | null
           created_at?: string
+          expires_at?: string | null
           giver_id: string
           id?: string
           proof_url?: string | null
+          receive_allowance_reserved?: boolean
           review_url_snapshot: string
+          sample_review_text?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: Database["public"]["Enums"]["task_status"]
@@ -201,10 +236,13 @@ export type Database = {
           business_name?: string
           completed_at?: string | null
           created_at?: string
+          expires_at?: string | null
           giver_id?: string
           id?: string
           proof_url?: string | null
+          receive_allowance_reserved?: boolean
           review_url_snapshot?: string
+          sample_review_text?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: Database["public"]["Enums"]["task_status"]
@@ -236,38 +274,56 @@ export type Database = {
       }
       users: {
         Row: {
+          allowance_accrued_on: string
           avatar_url: string | null
           created_at: string
           credit_balance: number
           daily_give_limit: number
           daily_receive_limit: number
           display_name: string
+          give_allowance_balance: number
           id: string
           line_user_id: string
+          plan_expires_at: string
+          referral_code: string
+          referred_by: string | null
+          receive_allowance_balance: number
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string
         }
         Insert: {
+          allowance_accrued_on?: string
           avatar_url?: string | null
           created_at?: string
           credit_balance?: number
           daily_give_limit?: number
           daily_receive_limit?: number
           display_name: string
+          give_allowance_balance?: number
           id?: string
           line_user_id: string
+          plan_expires_at?: string
+          referral_code?: string
+          referred_by?: string | null
+          receive_allowance_balance?: number
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
         }
         Update: {
+          allowance_accrued_on?: string
           avatar_url?: string | null
           created_at?: string
           credit_balance?: number
           daily_give_limit?: number
           daily_receive_limit?: number
           display_name?: string
+          give_allowance_balance?: number
           id?: string
           line_user_id?: string
+          plan_expires_at?: string
+          referral_code?: string
+          referred_by?: string | null
+          receive_allowance_balance?: number
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
         }
@@ -279,7 +335,7 @@ export type Database = {
     }
     Functions: {
       accept_review_task: {
-        Args: { p_business_id: string; p_giver_id: string }
+        Args: { p_assignment_id: string; p_giver_id: string }
         Returns: string
       }
       admin_adjust_credit: {
@@ -291,16 +347,30 @@ export type Database = {
         }
         Returns: undefined
       }
+      complete_review_task: {
+        Args: { p_giver_id: string; p_proof_url: string; p_task_id: string }
+        Returns: string
+      }
+      expire_overdue_tasks: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       get_daily_stats: {
         Args: { p_user_id: string }
         Returns: {
+          give_allowance: number
           gives: number
+          receive_allowance: number
           receives: number
+          skips: number
+          skips_remaining: number
         }[]
       }
       get_discover_feed: {
         Args: { p_giver_id: string; p_limit?: number }
         Returns: {
+          assigned_until: string
+          assignment_id: string
           category: string
           city: string
           district: string
@@ -317,9 +387,23 @@ export type Database = {
         }
         Returns: undefined
       }
+      save_business_card: {
+        Args: {
+          p_active: boolean
+          p_category: string
+          p_city: string
+          p_district: string
+          p_generic_description: string
+          p_name: string
+          p_owner_id: string
+          p_review_url: string
+          p_sample_reviews: string[]
+        }
+        Returns: string
+      }
       skip_business: {
         Args: { p_business_id: string; p_giver_id: string }
-        Returns: undefined
+        Returns: number
       }
       submit_review_task: {
         Args: { p_giver_id: string; p_proof_url: string; p_task_id: string }

@@ -18,10 +18,13 @@ export async function GET(request: NextRequest) {
   const store = await cookies();
   const stateCookie = `${COOKIE_PREFIX}line_oauth_state`;
   const nonceCookie = `${COOKIE_PREFIX}line_oauth_nonce`;
+  const referralCookie = `${COOKIE_PREFIX}giveget_referral`;
   const expectedState = store.get(stateCookie)?.value;
   const nonce = store.get(nonceCookie)?.value;
+  const referralCode = store.get(referralCookie)?.value;
   store.delete(stateCookie);
   store.delete(nonceCookie);
+  store.delete(referralCookie);
   if (!state || !nonce || state !== expectedState) return loginError("invalid_state");
   if (oauthError) return loginError("line_cancelled");
   if (!code) return loginError("line_login_failed");
@@ -51,6 +54,14 @@ export async function GET(request: NextRequest) {
       .select("id")
       .single();
     if (upsertError) throw upsertError;
+
+    if (!existing?.id && referralCode) {
+      const { error: referralError } = await supabase.rpc("claim_referral" as never, {
+        p_invitee_id: user.id,
+        p_referral_code: referralCode,
+      } as never);
+      if (referralError) console.error("Referral claim failed:", referralError.message);
+    }
 
     await createSession(user.id);
     return NextResponse.redirect(`${config.appUrl}/discover`);

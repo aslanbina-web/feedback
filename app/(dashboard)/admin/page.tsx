@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/auth";
-import { getAdminSubmissions, getAdminUsers } from "@/lib/data";
+import { getAdminSubmissions, getAdminTaskReports, getAdminUsers } from "@/lib/data";
 import { AdminReview } from "@/components/admin-review";
 import { CreditAdjust } from "@/components/credit-adjust";
 
@@ -8,12 +8,19 @@ export const metadata: Metadata = { title: "Admin" };
 
 export default async function AdminPage() {
   await requireAdmin();
-  const [submissions, users] = await Promise.all([getAdminSubmissions(), getAdminUsers()]);
+  const [submissions, reports, users] = await Promise.all([getAdminSubmissions(), getAdminTaskReports(), getAdminUsers()]);
   return (
     <>
       <p className="eyebrow">Private moderation desk</p>
       <h1 className="page-title">Admin.</h1>
-      <p className="lede">Approve valid completed reviews or reject them. Approval grants exactly one get credit.</p>
+      <p className="lede">Review legacy submissions only. New tasks complete automatically after a valid Google review link is submitted.</p>
+      <h2>Open task reports</h2>
+      {reports.length === 0 ? <div className="empty">No open reports.</div> : reports.map((report) => (
+        <article className="task" key={report.id}>
+          <div className="task-top"><div><h2>{report.task.business_name}</h2><span className="mono">by {report.reporter.display_name}</span></div><span className="status">{report.reason.replaceAll("_", " ")}</span></div>
+          {report.details ? <p>{report.details}</p> : <p className="lede">No extra details.</p>}
+        </article>
+      ))}
       <h2>Pending submissions</h2>
       {submissions.length === 0 ? (
         <div className="empty">No submissions waiting.</div>

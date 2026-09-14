@@ -17,5 +17,16 @@
     "paths": { "@/*": ["./*"] }
   },
   "include": ["next-env.d.ts", ".next/types/**/*.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "claude-redesign-audit",
+    "claude-redesign-reference",
+    "GiveGet-playful-ui-final-2026-09-13",
+    "GiveGet-playful-ui-final-2026-09-13/**",
+    "GiveGet-final-board-v4",
+    "GiveGet-latest-2026-09-11-v3",
+    "feedback-lifecycle",
+    "review-reference-v1",
+    "work"
+  ]
 }

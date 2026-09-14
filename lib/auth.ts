@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { SignJWT, jwtVerify } from "jose";
@@ -31,7 +32,14 @@ export async function createSession(userId: string) {
 
 export async function clearSession() {
   const store = await cookies();
-  store.delete(SESSION_COOKIE);
+  store.set(SESSION_COOKIE, "", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 0,
+    expires: new Date(0),
+  });
 }
 
 export async function getSessionUserId() {
@@ -46,16 +54,16 @@ export async function getSessionUserId() {
   }
 }
 
-export async function getCurrentUser(): Promise<AppUser | null> {
+export const getCurrentUser = cache(async (): Promise<AppUser | null> => {
   const userId = await getSessionUserId();
   if (!userId || !process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) return null;
   const { data } = await getSupabaseAdmin()
     .from("users")
-    .select("id,display_name,avatar_url,role,credit_balance,daily_give_limit,daily_receive_limit")
+    .select("id,display_name,avatar_url,role,credit_balance,daily_give_limit,daily_receive_limit,plan_expires_at,referral_code")
     .eq("id", userId)
     .maybeSingle();
   return (data as AppUser | null) ?? null;
-}
+});
 
 export async function requireUser() {
   const user = await getCurrentUser();

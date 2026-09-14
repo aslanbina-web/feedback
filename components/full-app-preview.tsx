@@ -1,0 +1,103 @@
+"use client";
+
+import Image from "next/image";
+import { useState } from "react";
+import { ReviewSteps } from "@/components/review-steps";
+import { UiIcon } from "@/components/ui-icons";
+import { BUSINESS_CATEGORIES, getBusinessCategory } from "@/lib/business-categories";
+
+type Screen = "home" | "discover" | "accept" | "review" | "submit" | "done" | "tasks" | "history" | "profile" | "samples" | "invite" | "notifications" | "settings" | "edit";
+type Go = (screen: Screen) => void;
+const previewHref = (screen: Screen) => `/preview?screen=${screen}`;
+
+const matches = [
+  { category: "Beauty / Salon", label: "Beauty", city: "Taichung", district: "Xitun", description: "A friendly neighborhood studio specializing in beauty and self-care." },
+  { category: "Restaurant / Café", label: "Café", city: "Taichung", district: "West District", description: "A cozy spot with great coffee and a relaxing atmosphere." },
+  { category: "Fitness", label: "Fitness", city: "Taichung", district: "Beitun", description: "A modern fitness studio offering group classes and personal training." },
+];
+const sample = "Great service and friendly staff! The environment is clean and relaxing. My hair looks amazing. Highly recommend!";
+
+function Home({ go }: { go: Go }) {
+  return <>
+    <div className="home-tagline"><Image src="/giveget-star.svg" alt="GiveGet star" width={70} height={64} priority /><p>Good reviews.<br />Stronger businesses.</p></div>
+    <section className="credit-panel"><span>Your Credits</span><strong><UiIcon name="star" />4</strong><a href={previewHref("invite")}>Get More →</a></section>
+    <div className="daily-stats"><div className="daily-stat give"><span className="daily-symbol">➤</span><span>Gives Today</span><strong>1 / 3</strong></div><div className="daily-stat receive"><span className="daily-symbol">♥</span><span>Receives Today</span><strong>2 / 3</strong></div></div>
+    <a className="button coral full home-cta" href={previewHref("discover")}>Leave a Review →</a>
+    <section className="monthly-goal"><h2>Your Progress</h2><div><span>Monthly Goal</span><strong>12 / 30</strong></div><div className="progress-track"><span style={{ width: "40%" }} /></div><small>Saved passes never expire.</small></section>
+    <aside className="home-tip"><span aria-hidden="true">🌟</span><p><strong>One thoughtful review matters.</strong><br />Support a local business today!</p></aside>
+  </>;
+}
+
+function Discover({ go }: { go: Go }) {
+  return <><h1 className="page-title compact-title">Your Assigned Matches.</h1><p className="lede blue">Up to 3 available today.</p><div className="assignment-refresh">🔄 New assignments in 29:18</div><div className="match-list">{matches.map((match) => <a className="match-card" href={previewHref("accept")} key={match.label}><Image className="match-image" src={getBusinessCategory(match.category).image} alt="" width={120} height={110} /><div className="match-copy"><span className="category-pill">{match.label}</span><strong><UiIcon name="pin" />{match.city} · {match.district}</strong><p>{match.description}</p></div><span className="match-arrow">›</span></a>)}<div className="discover-privacy"><span aria-hidden="true">🔒</span><p>Business name, owner and review link stay hidden until you accept.</p></div></div></>;
+}
+
+function Accept({ go }: { go: Go }) {
+  const match = matches[0];
+  return <><ReviewSteps active={1} /><h1 className="page-title compact-title">Accept this task?</h1><p className="lede blue">Support a local business with a review.</p><article className="accept-card"><Image src={getBusinessCategory(match.category).image} alt="Beauty business" width={160} height={140} /><div><span className="category-pill">{match.label}</span><strong><UiIcon name="pin" />{match.city} · {match.district}</strong><p>{match.description}</p></div></article><div className="accept-warning"><UiIcon name="clock" /><p>You have 60 minutes to finish.<br />If it expires, you lose the chance to earn the credit.</p></div><a className="button green full" href={previewHref("review")}>Accept Task</a></>;
+}
+
+function Timer() { return <div className="timer-bar"><UiIcon name="clock" />60:00</div>; }
+
+function Review({ go }: { go: Go }) {
+  const [copied, setCopied] = useState(false);
+  async function copy() { await navigator.clipboard.writeText(sample).catch(() => undefined); setCopied(true); window.open("https://maps.google.com", "_blank", "noopener,noreferrer"); }
+  return <><Timer /><ReviewSteps active={2} /><article className="revealed-business"><Image src={getBusinessCategory("Beauty / Salon").image} alt="Bloom & Co." width={112} height={94} /><div><h2>Bloom &amp; Co.</h2><span className="category-pill">Beauty</span><strong><UiIcon name="pin" />Taichung · Xitun</strong><a href="https://maps.google.com" target="_blank" rel="noreferrer"><UiIcon name="pin" />View on Google Maps <UiIcon name="external" /></a></div></article><section className="review-sample"><div><h2>Copy this review</h2><button onClick={copy}>{copied ? "Copied ✓" : "Copy"} <UiIcon name="copy" /></button></div><p>{sample}</p></section><button className="button green full" onClick={copy}>Copy &amp; Open Google Maps <UiIcon name="external" /></button><a className="button white full" href={previewHref("submit")}>I’ve Posted My Review ✓</a></>;
+}
+
+function Submit({ go }: { go: Go }) {
+  return <><Timer /><ReviewSteps active={3} /><h1 className="section-title">Submit Your Review</h1><p className="lede blue">Find your posted review on Google Maps. Tap the three-dot menu beside your review, then copy its link.</p><article className="google-review"><div className="google-avatar">T</div><div><strong>Tana Nokan</strong><small>Local Guide · 61 reviews · 26 photos</small></div><b>⋮</b><div className="google-stars">★★★★★ <small>a year ago</small></div><p>Great service and friendly staff! The environment is clean and relaxing… <span>More</span></p></article><label>Paste your review URL<input defaultValue="https://maps.google.com/..." /></label><a className="button green full" href={previewHref("done")}>Confirm Submission</a><button className="text-button">Report incorrect or missing review</button></>;
+}
+
+function Done({ go }: { go: Go }) {
+  return <div className="done-screen"><div className="celebration-wrap"><span>🎉</span><Image className="celebration-star" src="/giveget-star.svg" alt="Celebrating GiveGet star" width={190} height={175} /><span>✨</span></div><h1 className="page-title">Great job!</h1><p className="lede blue">Your review is complete!</p><div className="credit-earned"><UiIcon name="star" /><strong>+1 credit added</strong></div><a className="button green full" href={previewHref("discover")}>Find Another Business</a><a className="button white full" href={previewHref("history")}>View History</a><p className="history-save-note">🎉 Your completed review and its URL are saved in History.</p></div>;
+}
+
+function Tasks({ go }: { go: Go }) {
+  return <><h1 className="page-title compact-title">Tasks.</h1><p className="lede blue">Your active review task.</p><article className="active-task"><div className="active-task-top"><Image src={getBusinessCategory("Beauty / Salon").image} alt="Bloom & Co." width={92} height={82} /><div><h2>Bloom &amp; Co.</h2><span className="category-pill">Beauty</span><strong><UiIcon name="pin" />Taichung · Xitun</strong><span className="task-time"><UiIcon name="clock" />42:18</span></div></div><ReviewSteps active={2} /><div className="sample-ready">▤ &nbsp; Sample review ready ✓</div><a className="button green full" href={previewHref("review")}>Resume Review</a><small>Leaving the app will not lose your place.</small></article></>;
+}
+
+function History() {
+  const [tab, setTab] = useState<"gives" | "receives">("gives");
+  const gives = [["Bloom & Co.", "Sep 8, 2026", "Completed"], ["Move Well Studio", "Sep 3, 2026", "Completed"], ["Sunny Brunch", "Aug 28, 2026", "Expired"]];
+  const receives = [["Mina’s Flower Studio", "Sep 7, 2026", "Completed"], ["Mina’s Flower Studio", "Aug 29, 2026", "Completed"]];
+  const rows = tab === "gives" ? gives : receives;
+  return <><h1 className="page-title compact-title">History.</h1><p className="lede blue">Your completed and expired matches.</p><div className="tabs"><button className={tab === "gives" ? "active" : ""} onClick={() => setTab("gives")}>My Gives</button><button className={tab === "receives" ? "active" : ""} onClick={() => setTab("receives")}>My Receives</button></div><div className="history-list">{rows.map((row, index) => <article key={row[0] + row[1]}><div className={`history-art history-art-${index + 1}`} aria-hidden="true" /><div className="history-copy"><h2>{row[0]}</h2><div className="history-date">{row[1]} · Taichung</div><span className={row[2] === "Expired" ? "history-status expired" : "history-status"}>{row[2]}</span>{row[2] === "Completed" ? <a href="https://maps.google.com" target="_blank" rel="noreferrer">View review URL ↗</a> : null}</div><strong className="history-points">{row[2] === "Completed" ? tab === "gives" ? "+1 🌟" : "🌟" : "⏱️"}</strong></article>)}</div><aside className="history-save-note"><span>🔗</span><span>Completed review links stay available here for future reference.</span></aside></>;
+}
+
+function Profile({ go }: { go: Go }) {
+  return <><section className="profile-identity"><div className="avatar">M</div><div><strong>Mina Chen</strong><span>🌱 Free Plan</span></div></section><section className="business-card-panel"><div className="profile-title-row"><h1 className="page-title compact-title">My Card.</h1><a className="profile-edit-button" href={previewHref("edit")}>✎ Edit</a></div><article className="business-summary"><div className="profile-business-art" role="img" aria-label="Mina's Flower Studio" /><div><h2>Mina&apos;s Flower Studio</h2><span>Florist · Taichung · Nantun</span><p>A small floral studio creating seasonal bouquets and thoughtful gifts.</p></div></article><a className="sample-action-link" href={previewHref("samples")}>✍️ Add Sample Reviews</a><p className="sample-helper">Add sample reviews you prefer for your shop.<br /><strong>8 samples available</strong></p></section><div className="quota-stats"><div><span>Credits</span><strong>🌟 4</strong></div><div><span>Gives</span><strong className="green-text">12 / 30</strong><small>22 days left</small></div><div><span>Receives</span><strong className="red-text">8 / 30</strong><small>22 days left</small></div></div><p className="saved-passes">Saved passes never expire.</p></>;
+}
+
+function EditBusiness() {
+  const [category, setCategory] = useState("Beauty / Salon");
+  const label = category === "Beauty / Salon" ? "Beauty Salon" : category;
+  return <><div className="business-setup-progress" aria-label="Profile setup progress"><span /><span /></div><h1 className="page-title compact-title">Create Your Card.</h1><p className="lede blue business-edit-lede">This information powers your assigned matches.</p><form className="business-card-form" onSubmit={(event) => event.preventDefault()}><label>Business niche<select value={category} onChange={(event) => setCategory(event.target.value)}>{BUSINESS_CATEGORIES.map((item) => <option value={item.name} key={item.name}>{item.name === "Beauty / Salon" ? "Beauty Salon" : item.name}</option>)}</select></label><div className="business-category-preview"><div className="business-category-art" aria-hidden="true" /><div><strong>{label}</strong><span>A matching category image is applied automatically.</span></div></div><label>Business name<input defaultValue="Mina's Flower Studio" /></label><label>City / district<input defaultValue="Taichung · Nantun" /></label><label>Generic description<textarea defaultValue="A small floral studio creating seasonal bouquets and thoughtful gifts." /></label><label>Google Maps review URL<input defaultValue="https://g.page/r/example/review" /></label><button className="button green full">Save My Card ✦</button></form></>;
+}
+
+function Samples({ go }: { go: Go }) {
+  const [draft, setDraft] = useState("");
+  const [samples, setSamples] = useState(["Beautiful fresh flowers and such friendly service. The bouquet was perfect!", "Thoughtful arrangement, lovely colors, and everything was ready on time."]);
+  return <><h1 className="page-title compact-title">Sample Reviews.</h1><p className="lede blue">Add review wording you genuinely prefer customers to use as inspiration.</p><form className="sample-add-card" onSubmit={(event) => { event.preventDefault(); if (!draft.trim()) return; setSamples((current) => [...current, draft.trim()]); setDraft(""); }}><label htmlFor="preview-sample">Add a new sample</label><textarea id="preview-sample" value={draft} onChange={(event) => setDraft(event.target.value)} maxLength={500} placeholder="Example: Friendly service and beautiful fresh flowers..." /><div className="sample-counter">{draft.length} / 500</div><button className="button green full">Add to My Samples ✦</button></form><div className="sample-list-heading"><h2>Your samples</h2><span>{samples.length + 6} available</span></div><div className="managed-sample-list">{samples.map((text, index) => <article key={text + index}><p>{text}</p><button aria-label="Delete sample" onClick={() => setSamples((all) => all.filter((_, item) => item !== index))}>🗑️</button></article>)}</div><aside className="sample-pool-note">🎲 When a giver accepts your card, one sample is chosen at random and removed from this available list.</aside></>;
+}
+
+function Invite() {
+  const [copied, setCopied] = useState(false);
+  return <><div className="invite-title"><div><h1 className="page-title compact-title">Invite &amp; Grow.</h1><span className="plan-badge">🌱 Free Plan</span><p className="lede blue">Invite another business owner and earn 30 more free days.</p></div><Image src="/giveget-invite-star.webp" alt="GiveGet star" width={100} height={92} /></div><section className="referral-card"><h2>Your Referral Link</h2><div><code>giveget.app/r/mina12</code><button onClick={() => setCopied(true)}>{copied ? "Copied!" : "Copy"}</button></div><div className="share-icons"><button><span>💬</span>LINE</button><button><span>🟢</span>WhatsApp</button><button><span>✉️</span>Email</button><button><span>•••</span>More</button></div></section><section className="how-it-works"><h2>How it works</h2><ol><li>Invite a new business through your unique link.</li><li>They create their business card.</li><li>They add at least one sample review.</li><li>They complete their first Give.</li></ol></section><aside className="referral-reward"><strong>🎉 You receive +30 free days</strong><br />Only after all four steps are completed.<br />The reward applies to the inviter only.</aside></>;
+}
+
+function Notifications({ go }: { go: Go }) { const items = [["⏱️","Your task expires soon","Bloom & Co. has 18 minutes remaining. Resume your review to keep the credit chance.","Just now"],["💌","New matches are ready","You have two assigned business cards available today.","10 minutes ago"],["🌱","Free plan: 3 days left","Invite a business friend to earn another 30 free days after they qualify.","Today"],["🎉","Referral qualified!","Your invited business completed its first Give. We added 30 free days.","Yesterday"]]; return <div className="notification-list">{items.map((item) => <article key={item[1]}><span className="notice-art">{item[0]}</span><div><strong>{item[1]}</strong><p>{item[2]}</p><time>{item[3]}</time></div></article>)}</div>; }
+function Settings({ go }: { go: Go }) { const rows = [["👤","Account","LINE identity and profile","profile"],["🔔","Notifications","Task, match and plan alerts","notifications"],["🛡️","Privacy & Safety","Community rules and reports",null],["❓","Help","How GiveGet works",null]] as const; return <><section className="settings-list">{rows.map((row) => { const content = <><span className="setting-art">{row[0]}</span><div><strong>{row[1]}</strong><small>{row[2]}</small></div><b>›</b></>; return row[3] ? <a className="setting-row" href={previewHref(row[3])} key={row[1]}>{content}</a> : <div className="setting-row" key={row[1]}>{content}</div>; })}</section><section className="settings-list"><a className="setting-row" href={previewHref("invite")}><span className="setting-art">🌱</span><div><strong>Free Plan</strong><small>22 days remaining</small></div><b>›</b></a><a className="setting-row" href={previewHref("invite")}><span className="setting-art">💌</span><div><strong>Invite &amp; Grow</strong><small>Earn another 30 free days</small></div><b>›</b></a></section><button className="settings-logout">Log out</button><p className="version-note">GiveGet version 1.0</p></>; }
+
+const navItems = [{ screen: "home", label: "Home", emoji: "🏠" }, { screen: "discover", label: "Discover", emoji: "🔎" }, { screen: "tasks", label: "Tasks", emoji: "✅" }, { screen: "history", label: "History", emoji: "📒" }, { screen: "profile", label: "Profile", emoji: "🙂" }] as const;
+
+export function FullAppPreview({ initialScreen = "home" }: { initialScreen?: string }) {
+  const [screen, setScreen] = useState<Screen>(initialScreen as Screen);
+  function go(next: Screen) { setScreen(next); window.scrollTo({ top: 0, behavior: "instant" }); }
+  const content = screen === "home" ? <Home go={go} /> : screen === "discover" ? <Discover go={go} /> : screen === "accept" ? <Accept go={go} /> : screen === "review" ? <Review go={go} /> : screen === "submit" ? <Submit go={go} /> : screen === "done" ? <Done go={go} /> : screen === "tasks" ? <Tasks go={go} /> : screen === "history" ? <History /> : screen === "profile" ? <Profile go={go} /> : screen === "samples" ? <Samples go={go} /> : screen === "invite" ? <Invite /> : screen === "notifications" ? <Notifications go={go} /> : screen === "settings" ? <Settings go={go} /> : <EditBusiness />;
+  const showBack = ["accept", "review", "submit", "done", "invite", "samples", "notifications", "settings", "edit"].includes(screen);
+  const backScreen: Screen = screen === "invite" || screen === "samples" || screen === "settings" || screen === "edit" ? "profile" : screen === "notifications" ? "home" : screen === "accept" ? "discover" : "tasks";
+  const headerTitle = screen === "notifications" ? "Notifications" : screen === "settings" ? "Settings" : "GiveGet";
+  const profileChild = ["samples", "invite", "notifications", "settings", "edit"].includes(screen);
+  return <main className={`shell board-shell screen-${screen}`}><header className="masthead">{showBack ? <a className="back-button" href={previewHref(backScreen)} aria-label="Go back"><UiIcon name="back" /></a> : null}{headerTitle === "GiveGet" ? <a className="brand preview-link" href={previewHref("home")}>GiveGet</a> : <span className="brand">{headerTitle}</span>}<div className="header-actions">{screen === "home" || screen === "tasks" ? <a className="header-icon" href={previewHref("notifications")} aria-label="Notifications"><span aria-hidden="true">🔔</span></a> : screen === "history" ? <div className="credits"><UiIcon name="star" /><strong>4</strong></div> : screen === "profile" ? <a className="header-icon profile-settings-icon" href={previewHref("settings")} aria-label="Settings"><span aria-hidden="true">⚙️</span></a> : screen === "samples" || screen === "invite" || screen === "notifications" || screen === "settings" || screen === "edit" ? <span className="sample-header-spacer" aria-hidden="true" /> : <div className="credits"><UiIcon name="star" /><strong>4</strong></div>}</div></header><div className="content">{content}</div>{screen !== "edit" ? <nav className="nav preview-nav">{navItems.map((item) => <a key={item.screen} href={previewHref(item.screen)} className={screen === item.screen || (profileChild && item.screen === "profile") ? "active" : ""}><span className="nav-bubble" aria-hidden="true">{item.emoji}</span>{item.label}</a>)}</nav> : null}</main>;
+}

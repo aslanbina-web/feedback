@@ -6,7 +6,11 @@ function required(name: string) {
 
 export const config = {
   get appUrl() {
-    const value = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const previewUrl =
+      process.env.VERCEL_ENV === "preview" && process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : undefined;
+    const value = previewUrl || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const url = new URL(value);
     if (process.env.NODE_ENV === "production" && url.protocol !== "https:") {
       throw new Error("NEXT_PUBLIC_APP_URL must use HTTPS in production");
