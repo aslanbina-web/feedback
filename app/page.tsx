@@ -21,13 +21,13 @@ const errors: Record<string, string> = {
 export default async function Home({ searchParams }: { searchParams: Promise<{ login_error?: string }> }) {
   const [userId, query, hdrs] = await Promise.all([getSessionUserId(), searchParams, headers()]);
   const message = query.login_error ? errors[query.login_error] : null;
+  const lineAuthUrl = hdrs.get("x-line-auth-url") || "/api/auth/line/start";
   if (!userId) {
-    const lineAuthUrl = hdrs.get("x-line-auth-url") || "/api/auth/line/start";
     return <LoginScreen message={message} lineAuthUrl={lineAuthUrl} />;
   }
 
   const [user, stats, monthly] = await Promise.all([getUserById(userId), getDailyStats(userId), getMonthlyStats(userId)]);
-  if (!user) return <LoginScreen message={message} />;
+  if (!user) return <LoginScreen message={message} lineAuthUrl={lineAuthUrl} />;
   const planDays = Math.max(0, Math.ceil((new Date(user.plan_expires_at).getTime() - Date.now()) / 86_400_000));
   return (
     <main className="shell">
