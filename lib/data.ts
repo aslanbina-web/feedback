@@ -31,13 +31,7 @@ export async function getAssignment(userId: string, assignmentId: string) {
 }
 
 export async function getQueue(userId: string) {
-  await expireOverdueTasks();
-  const { data, error } = await getSupabaseAdmin()
-    .from("tasks")
-    .select("id,status,accepted_at,expires_at,submitted_at,completed_at,proof_url,business_name,business_category,business_city,business_district,review_url_snapshot,sample_review_text")
-    .eq("giver_id", userId)
-    .in("status", ["accepted", "submitted"])
-    .order("accepted_at", { ascending: false });
+  const { data, error } = await getSupabaseAdmin().rpc("get_queue_tasks" as never, { p_user_id: userId } as never);
   if (error) throw error;
   return (data ?? []) as unknown as QueueTask[];
 }
@@ -98,15 +92,10 @@ export async function getDailyStats(userId: string): Promise<DailyStats> {
 }
 
 export async function getQueueTask(userId: string, taskId: string) {
-  await expireOverdueTasks();
-  const { data, error } = await getSupabaseAdmin()
-    .from("tasks")
-    .select("id,status,accepted_at,expires_at,submitted_at,completed_at,proof_url,business_name,business_category,business_city,business_district,review_url_snapshot,sample_review_text")
-    .eq("id", taskId)
-    .eq("giver_id", userId)
-    .maybeSingle();
+  const { data, error } = await getSupabaseAdmin().rpc("get_queue_task" as never, { p_user_id: userId, p_task_id: taskId } as never);
   if (error) throw error;
-  return data as unknown as QueueTask | null;
+  const rows = (data ?? []) as unknown as QueueTask[];
+  return rows[0] ?? null;
 }
 
 export async function getMonthlyStats(userId: string): Promise<MonthlyStats> {
