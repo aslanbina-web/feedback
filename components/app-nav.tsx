@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { UiIcon } from "@/components/ui-icons";
 
@@ -18,12 +18,6 @@ export function AppNav() {
   const router = useRouter();
   const [pendingHref, setPendingHref] = useState<string | null>(null);
 
-  useEffect(() => {
-    for (const item of items) {
-      if (item.href !== pathname) router.prefetch(item.href);
-    }
-  }, [pathname, router]);
-
   if (pathname === "/profile/edit") return null;
 
   return (
@@ -36,7 +30,7 @@ export function AppNav() {
           <Link
             key={item.href}
             href={item.href}
-            prefetch
+            prefetch={false}
             className={active ? "active" : ""}
             aria-current={current ? "page" : undefined}
             aria-busy={pendingHref === item.href && !current ? true : undefined}
