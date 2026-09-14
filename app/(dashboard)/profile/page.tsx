@@ -26,6 +26,13 @@ export default async function ProfilePage() {
       {business ? <article className="business-summary"><Image src={category.image} alt="" width={95} height={110} /><div><h2>{business.name}</h2><span>{category.name} · {business.city} · {business.district}</span><p>{business.generic_description}</p></div></article> : <div className="empty">Create your business card below.</div>}
       <Link className="sample-action-link" href={business ? "/samples" : "#business-card"}><UiIcon name="edit" /> Add Sample Reviews</Link>
       <p className="sample-helper">Add sample reviews you prefer for your shop.<br /><strong>{business?.business_review_samples?.length ?? 0} samples available</strong></p>
+      {business && (business.business_review_samples?.length ?? 0) <= 1 ? (
+        <p className="notice">
+          {(business.business_review_samples?.length ?? 0) === 0
+            ? "You're out of sample reviews. Reviewers will still be matched to you, but add a sample so they have a starting point to work from."
+            : "Only 1 sample left — add a few more so reviewers always have a starting point to work from."}
+        </p>
+      ) : null}
     </section>
     <div className="quota-stats"><div><span>Credits</span><strong><UiIcon name="star" /> {user.credit_balance}</strong></div><div><span>Gives</span><strong className="green-text">{monthly.gives}/30</strong><small>{planDays} days left</small></div><div><span>Receives</span><strong className="red-text">{monthly.receives}/30</strong><small>{planDays} days left</small></div></div>
     <p className="saved-passes">Give passes: {stats.giveAllowance} · Receive passes: {stats.receiveAllowance}<br />Saved passes never expire.</p>
