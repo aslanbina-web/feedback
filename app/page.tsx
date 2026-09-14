@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import { getSessionUserId, getUserById } from "@/lib/auth";
 import { getDailyStats, getMonthlyStats } from "@/lib/data";
 import { config } from "@/lib/config";
@@ -18,9 +19,12 @@ const errors: Record<string, string> = {
 };
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ login_error?: string }> }) {
-  const [userId, query] = await Promise.all([getSessionUserId(), searchParams]);
+  const [userId, query, hdrs] = await Promise.all([getSessionUserId(), searchParams, headers()]);
   const message = query.login_error ? errors[query.login_error] : null;
-  if (!userId) return <LoginScreen message={message} />;
+  if (!userId) {
+    const lineAuthUrl = hdrs.get("x-line-auth-url") || "/api/auth/line/start";
+    return <LoginScreen message={message} lineAuthUrl={lineAuthUrl} />;
+  }
 
   const [user, stats, monthly] = await Promise.all([getUserById(userId), getDailyStats(userId), getMonthlyStats(userId)]);
   if (!user) return <LoginScreen message={message} />;
@@ -45,7 +49,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ l
   );
 }
 
-function LoginScreen({ message }: { message: string | null }) {
+function LoginScreen({ message, lineAuthUrl }: { message: string | null; lineAuthUrl: string }) {
   return (
     <main className="shell login">
       <p className="eyebrow">A private exchange for local businesses</p>
@@ -53,7 +57,7 @@ function LoginScreen({ message }: { message: string | null }) {
       <p className="login-sub">1 completed give = 1 get credit.<br />Fair, simple, useful.</p>
       {message ? <div className="notice">{message}</div> : null}
       <PwaLoginHelp />
-      <a className="button line-button full" href="/api/auth/line/start">Continue with LINE</a>
+      <a className="button line-button full" href={lineAuthUrl}>Continue with LINE</a>
       <a className="button alt full" href={config.officialAccountUrl} style={{ marginTop: 10 }}>Add Official LINE</a>
       <p className="privacy-note">New accounts are admitted through our Official LINE. There is no public email signup.</p>
     </main>
