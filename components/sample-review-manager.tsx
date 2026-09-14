@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { UiIcon } from "@/components/ui-icons";
 
 type Sample = { id: string; sample_text: string; created_at: string };
 type Business = {
@@ -97,11 +98,11 @@ export function SampleReviewManager({ business, preview = false }: { business: B
         {samples.map((sample, index) => (
           <article key={`${sample}-${index}`}>
             <p>{sample}</p>
-            <button type="button" aria-label="Delete sample" disabled={busy || samples.length <= 1} onClick={() => removeSample(index)}>🗑️</button>
+            <button type="button" aria-label="Delete sample" disabled={busy || samples.length <= 1} onClick={() => removeSample(index)}><UiIcon name="trash" /></button>
           </article>
         ))}
       </div>
-      <aside className="sample-pool-note">🎲 When a giver accepts your card, one sample is chosen at random and removed from this available list.</aside>
+      <aside className="sample-pool-note"><UiIcon name="star" /> When a giver accepts your card, one sample is chosen at random and removed from this available list.</aside>
       <p className="form-message" aria-live="polite">{message}</p>
     </>
   );

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { UiIcon } from "@/components/ui-icons";
 
 export function TaskCountdown({ expiresAt }: { expiresAt: string }) {
   const router = useRouter();
@@ -26,5 +27,5 @@ export function TaskCountdown({ expiresAt }: { expiresAt: string }) {
   const minutes = Math.floor(remaining / 60).toString().padStart(2, "0");
   const seconds = (remaining % 60).toString().padStart(2, "0");
   const urgent = remaining <= 60;
-  return <span className={`countdown${urgent ? " urgent" : ""}`}>⏱ {minutes}:{seconds}</span>;
+  return <span className={`countdown${urgent ? " urgent" : ""}`}><UiIcon name="clock" /> {minutes}:{seconds}</span>;
 }

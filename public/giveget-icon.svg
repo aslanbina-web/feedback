@@ -1,5 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#EFEAE0"/>
-  <rect x="36" y="36" width="440" height="440" fill="none" stroke="#1F2A22" stroke-width="18"/>
-  <text x="256" y="312" text-anchor="middle" font-family="Georgia,serif" font-size="210" font-weight="700" fill="#B8582F">GG</text>
+  <rect width="512" height="512" rx="104" fill="#fffaf0"/>
+  <rect x="24" y="24" width="464" height="464" rx="88" fill="none" stroke="#111958" stroke-width="22"/>
+  <g transform="translate(56 66) scale(1.67)" stroke="#111958" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M65 147c-18 8-27 18-36 28M176 146c17 8 27 19 34 31M89 176c-2 16-9 23-23 26M151 177c3 15 10 22 24 24" fill="none" stroke-width="10"/>
+    <path d="m120 21 26 53 59 9-43 42 10 59-52-28-53 28 10-59-43-42 59-9Z" fill="#ffc83d" stroke-width="10"/>
+    <ellipse cx="94" cy="112" rx="7" ry="10" fill="#111958" stroke="none"/>
+    <ellipse cx="146" cy="112" rx="7" ry="10" fill="#111958" stroke="none"/>
+    <path d="M102 133c11 12 25 12 36 0" fill="none" stroke-width="7"/>
+    <ellipse cx="77" cy="132" rx="12" ry="7" fill="#ff7d86" stroke="none"/>
+    <ellipse cx="163" cy="132" rx="12" ry="7" fill="#ff7d86" stroke="none"/>
+  </g>
 </svg>

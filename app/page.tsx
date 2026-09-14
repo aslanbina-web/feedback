@@ -5,6 +5,7 @@ import { config } from "@/lib/config";
 import { AppNav } from "@/components/app-nav";
 import Image from "next/image";
 import { UiIcon } from "@/components/ui-icons";
+import { PwaLoginHelp } from "@/components/pwa-login-help";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +28,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ l
         <h1 className="login-mark">Give<br />Get.</h1>
         <p className="login-sub">1 completed give = 1 get credit.<br />Fair, simple, useful.</p>
         {message ? <div className="notice">{message}</div> : null}
+        <PwaLoginHelp />
         <a className="button line-button full" href="/api/auth/line/start">Continue with LINE</a>
         <a className="button alt full" href={config.officialAccountUrl} style={{ marginTop: 10 }}>Add Official LINE</a>
         <p className="privacy-note">New accounts are admitted through our Official LINE. There is no public email signup.</p>
@@ -43,12 +45,12 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ l
         <div className="home-tagline"><Image src="/giveget-star.svg" alt="GiveGet star" width={74} height={68} priority /><p>Good reviews.<br />Stronger businesses.</p></div>
         <section className="credit-panel"><span>Your Credits</span><strong><UiIcon name="star" />{user.credit_balance}</strong><Link href="/invite">Get More →</Link></section>
         <div className="daily-stats">
-          <div className="daily-stat give"><span className="daily-symbol">➤</span><span>Gives Today</span><strong>{stats.gives} / 3</strong></div>
-          <div className="daily-stat receive"><span className="daily-symbol">♥</span><span>Receives Today</span><strong>{stats.receives} / 3</strong></div>
+          <div className="daily-stat give"><span className="daily-symbol"><UiIcon name="send" /></span><span>Gives Today</span><strong>{stats.gives} / 3</strong></div>
+          <div className="daily-stat receive"><span className="daily-symbol"><UiIcon name="heart" /></span><span>Receives Today</span><strong>{stats.receives} / 3</strong></div>
         </div>
         <Link className="button coral full home-cta" href="/discover">Leave a Review →</Link>
         <section className="monthly-goal"><h2>Your Progress</h2><div><span>Monthly Goal</span><strong>{monthly.gives} / 30</strong></div><div className="progress-track"><span style={{ width: `${Math.min(monthly.gives / 30 * 100, 100)}%` }} /></div><small>Saved passes never expire.</small></section>
-        <aside className="home-tip"><span aria-hidden="true">🌟</span><p><strong>One thoughtful review matters.</strong><br />Support a local business today!</p></aside>
+        <aside className="home-tip"><span aria-hidden="true"><UiIcon name="star" /></span><p><strong>One thoughtful review matters.</strong><br />Support a local business today!</p></aside>
         {user.role === "admin" ? <p><Link className="admin-link" href="/admin">Open Admin Desk →</Link></p> : null}
       </div>
       <AppNav />

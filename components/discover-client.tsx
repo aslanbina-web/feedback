@@ -34,7 +34,7 @@ export function DiscoverClient({ initialBusinesses }: { initialBusinesses: Disco
 
   return (
     <>
-    <div className="assignment-refresh">🔄 New assignments rotate every 30 minutes</div>
+    <div className="assignment-refresh"><UiIcon name="refresh" /> New assignments rotate every 30 minutes</div>
     <div className="match-list">
       {initialBusinesses.map((business) => (
         <Link className="match-card" href={`/discover/${business.assignment_id}`} key={business.assignment_id}>
@@ -47,7 +47,7 @@ export function DiscoverClient({ initialBusinesses }: { initialBusinesses: Disco
           <span className="match-arrow">›</span>
         </Link>
       ))}
-      <div className="discover-privacy"><span aria-hidden="true">🔒</span><p>Business name, owner and review link stay hidden until you accept.</p></div>
+      <div className="discover-privacy"><span aria-hidden="true"><UiIcon name="lock" /></span><p>Business name, owner and review link stay hidden until you accept.</p></div>
     </div>
     </>
   );

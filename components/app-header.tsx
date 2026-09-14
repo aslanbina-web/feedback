@@ -20,8 +20,8 @@ export function AppHeader({ credits }: { credits: number }) {
       {showBack ? <button className="back-button" type="button" aria-label="Go back" onClick={() => router.back()}><UiIcon name="back" /></button> : null}
       {pageTitle === "GiveGet" ? <Link className="brand" href="/">GiveGet</Link> : <span className="brand">{pageTitle}</span>}
       <div className="header-actions">
-        {showBell ? <Link className="header-icon" href="/notifications" aria-label="Notifications"><span aria-hidden="true">🔔</span></Link> : null}
-        {showSettings ? <Link className="header-icon profile-settings-icon" href="/settings" aria-label="Settings"><span aria-hidden="true">⚙️</span></Link> : null}
+        {showBell ? <Link className="header-icon" href="/notifications" aria-label="Notifications"><UiIcon name="bell" /></Link> : null}
+        {showSettings ? <Link className="header-icon profile-settings-icon" href="/settings" aria-label="Settings"><UiIcon name="settings" /></Link> : null}
         {showCredits ? <div className="credits"><UiIcon name="star" /><strong>{credits}</strong><span className="eyebrow">credits</span></div> : null}
       </div>
     </header>

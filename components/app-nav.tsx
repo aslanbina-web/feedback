@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { UiIcon } from "@/components/ui-icons";
 
 const items = [
-  { href: "/", label: "Home", emoji: "🏠" },
-  { href: "/discover", label: "Discover", emoji: "🔎" },
-  { href: "/queue", label: "Tasks", emoji: "✅" },
-  { href: "/history", label: "History", emoji: "📒" },
-  { href: "/profile", label: "Profile", emoji: "🙂" },
+  { href: "/", label: "Home", icon: "home" as const },
+  { href: "/discover", label: "Discover", icon: "search" as const },
+  { href: "/queue", label: "Tasks", icon: "tasks" as const },
+  { href: "/history", label: "History", icon: "history" as const },
+  { href: "/profile", label: "Profile", icon: "profile" as const },
 ];
 
 export function AppNav() {
@@ -31,7 +32,7 @@ export function AppNav() {
         const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href) || (item.href === "/profile" && profileChild);
         return (
           <Link key={item.href} href={item.href} prefetch className={active ? "active" : ""} aria-current={active ? "page" : undefined}>
-            <span className="nav-bubble" aria-hidden="true">{item.emoji}</span>
+            <span className="nav-bubble" aria-hidden="true"><UiIcon name={item.icon} /></span>
             {item.label}
           </Link>
         );

@@ -16,7 +16,7 @@
 
 html { background: #f4f0e7; color: var(--ink); }
 body {
-  min-height: 100vh;
+  min-height: 100dvh;
   background: #f4f0e7;
   color: var(--ink);
   font-family: "Nunito", sans-serif;
@@ -55,7 +55,7 @@ body {
   flex: 1;
   flex-direction: column;
   gap: 12px;
-  padding: 5px 15px 94px;
+  padding: 5px 15px calc(94px + env(safe-area-inset-bottom));
 }
 
 .page-title,
@@ -80,7 +80,7 @@ body {
   display: grid;
   width: 43px;
   min-width: 43px;
-  height: 40px;
+  height: 44px;
   place-items: center;
   border: 3px solid var(--ink);
   border-radius: 13px 17px 12px 16px;
@@ -173,8 +173,7 @@ body {
 .daily-stat.give { background: #c9f6e3; transform: rotate(-1deg); }
 .daily-stat.receive { background: #dceaff; transform: rotate(1deg); }
 .daily-symbol { font-size: 0; transform: none; }
-.daily-stat.give .daily-symbol::before { content: "🛩️"; font-size: 31px; }
-.daily-stat.receive .daily-symbol::before { content: "💖"; font-size: 31px; }
+.daily-symbol svg { width: 34px; height: 34px; }
 .daily-stat span:not(.daily-symbol) { font: 500 14px "Fredoka", sans-serif; }
 .daily-stat strong { font: 500 25px "Fredoka", sans-serif; }
 
@@ -216,7 +215,8 @@ body {
   background: #fff0b8;
   font-size: 12px;
 }
-.home-tip > span { font-size: 24px; }
+.home-tip > span { display: grid; width: 28px; place-items: center; }
+.home-tip > span svg { width: 27px; height: 27px; fill: #ffd956; stroke-width: 2.4px; }
 .home-tip p, .discover-privacy p { margin: 0; }
 
 .assignment-refresh {
@@ -683,7 +683,7 @@ input, textarea, select {
   background: #f4f8ff;
   box-shadow: none;
   color: var(--ink);
-  font: 400 15px/1.45 "Nunito", sans-serif;
+  font: 400 16px/1.45 "Nunito", sans-serif;
 }
 .sample-add-card textarea::placeholder { color: #747b89; opacity: 1; }
 .sample-counter {
@@ -1090,7 +1090,7 @@ input, textarea, select {
   background: #f4f8ff;
   box-shadow: none;
   color: var(--ink);
-  font: 400 14px/1.4 "Nunito", sans-serif;
+  font: 400 16px/1.4 "Nunito", sans-serif;
   text-transform: none;
 }
 .business-card-form select { min-height: 45px; }
@@ -1169,7 +1169,8 @@ input, textarea, select {
   z-index: 20;
   bottom: 14px;
   width: min(calc(100% - 34px), 380px);
-  height: 72px;
+  height: calc(72px + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
   overflow: visible;
   border: 0;
   border-top: 4px solid var(--ink);
@@ -1200,6 +1201,61 @@ input, textarea, select {
   font-size: 19px;
   line-height: 1;
   transform: rotate(-2deg);
+}
+.nav-bubble svg { width: 24px; height: 24px; stroke-width: 2.1px; }
+.nav a.active .nav-bubble svg { width: 29px; height: 29px; }
+.header-icon svg { width: 25px; height: 25px; }
+.back-button svg { width: 25px; height: 25px; }
+.secondary-page-header .back-button,
+.screen-samples .back-button,
+.screen-invite .back-button,
+.screen-notifications .back-button,
+.screen-settings .back-button,
+.screen-edit .back-button { height: 44px; }
+
+.countdown svg { width: 20px; height: 20px; flex: 0 0 auto; fill: #ffdce4; }
+.workflow > .countdown svg { width: 24px; height: 24px; }
+.credit-earned svg { width: 43px; height: 43px; fill: #ffd956; stroke-width: 2.5px; }
+.assignment-refresh { display: inline-flex; align-items: center; gap: 5px; }
+.assignment-refresh svg { width: 16px; height: 16px; }
+.discover-privacy > span { display: grid; place-items: center; }
+.discover-privacy > span svg { width: 25px; height: 25px; }
+.profile-identity span { display: inline-flex; align-items: center; gap: 4px; }
+.profile-identity span svg,
+.plan-badge svg { width: 15px; height: 15px; }
+.profile-edit-button { display: inline-flex; align-items: center; gap: 3px; }
+.profile-edit-button svg { width: 15px; height: 15px; }
+.sample-action-link { grid-auto-flow: column; grid-auto-columns: max-content; gap: 7px; justify-content: center; }
+.sample-action-link svg { width: 22px; height: 22px; }
+.quota-stats strong { display: inline-flex; align-items: center; justify-content: center; gap: 2px; }
+.quota-stats strong svg { width: 26px; height: 26px; fill: #ffd956; stroke-width: 2.5px; }
+.history-points { display: inline-flex; align-items: center; gap: 2px; }
+.history-points svg { width: 22px; height: 22px; fill: #ffd956; stroke-width: 2.4px; }
+.history-save-note > span:first-child { display: grid; place-items: center; }
+.history-save-note svg { width: 21px; height: 21px; }
+.copy-button svg { width: 19px; height: 19px; }
+.managed-sample-list button svg { width: 23px; height: 23px; }
+.sample-pool-note { display: flex; align-items: flex-start; gap: 7px; }
+.sample-pool-note svg { width: 20px; height: 20px; flex: 0 0 auto; fill: #ffd956; }
+.setting-art svg,
+.notice-art svg { width: 24px; height: 24px; }
+.plan-badge { display: inline-flex; align-items: center; gap: 4px; }
+.referral-reward strong { display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
+.referral-reward strong svg { width: 20px; height: 20px; }
+.share-icons span svg { width: 23px; height: 23px; }
+.share-icons .share-mark { color: var(--ink); font: 800 10px/1 "Nunito", sans-serif; }
+
+input,
+textarea,
+select { font-size: 16px; }
+
+.tabs button { min-height: 44px; }
+.credit-panel > a,
+.credit-panel > button { min-height: 44px; }
+.managed-sample-list button { width: 44px; height: 44px; }
+
+@supports selector(body:has(input:focus)) {
+  body:has(input:focus, textarea:focus, select:focus) .nav { display: none; }
 }
 .nav-bubble::after {
   position: absolute;

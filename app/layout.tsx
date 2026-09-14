@@ -11,9 +11,11 @@ export const metadata: Metadata = {
   title: { default: "GiveGet", template: "%s — GiveGet" },
   description: "Give useful reviews. Earn review credits.",
   manifest: "/manifest.webmanifest",
+  appleWebApp: { capable: true, title: "GiveGet", statusBarStyle: "default" },
+  icons: { apple: "/apple-touch-icon.png" },
 };
 
-export const viewport: Viewport = { themeColor: "#EFEAE0", colorScheme: "light" };
+export const viewport: Viewport = { themeColor: "#EFEAE0", colorScheme: "light", viewportFit: "cover" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
