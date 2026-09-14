@@ -30,7 +30,6 @@ export async function GET(request: NextRequest) {
     state,
     scope: "openid profile",
     nonce,
-    bot_prompt: "aggressive",
   }).toString();
 
   const response = NextResponse.redirect(url);

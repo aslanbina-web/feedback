@@ -32,7 +32,6 @@ export function middleware(request: NextRequest) {
       state,
       scope: "openid profile",
       nonce,
-      bot_prompt: "aggressive",
     }).toString();
     lineAuthUrl = url.toString();
   }
