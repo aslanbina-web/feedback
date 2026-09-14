@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { requireUser } from "@/lib/auth";
+import { requireUserId } from "@/lib/auth";
 import { getHistory } from "@/lib/data";
 import { HistoryTabs } from "@/components/history-tabs";
 import { UiIcon } from "@/components/ui-icons";
@@ -7,8 +7,8 @@ import { UiIcon } from "@/components/ui-icons";
 export const metadata: Metadata = { title: "History" };
 
 export default async function HistoryPage() {
-  const user = await requireUser();
-  const history = await getHistory(user.id);
+  const userId = await requireUserId();
+  const history = await getHistory(userId);
 
   return (
     <>

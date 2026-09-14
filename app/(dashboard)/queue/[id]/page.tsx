@@ -1,12 +1,11 @@
 import { notFound, redirect } from "next/navigation";
-import { requireUser } from "@/lib/auth";
+import { requireUserId } from "@/lib/auth";
 import { getQueueTask } from "@/lib/data";
 import { TaskReviewFlow } from "@/components/task-review-flow";
 
 export default async function ReviewTaskPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ step?: string }> }) {
-  const user = await requireUser();
-  const [{ id }, query] = await Promise.all([params, searchParams]);
-  const task = await getQueueTask(user.id, id);
+  const [userId, { id }, query] = await Promise.all([requireUserId(), params, searchParams]);
+  const task = await getQueueTask(userId, id);
   if (!task) notFound();
   if (task.status === "completed") redirect("/history");
   if (task.status === "expired" || task.status === "rejected") redirect("/queue");

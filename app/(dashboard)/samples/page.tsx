@@ -1,12 +1,12 @@
-import { requireUser } from "@/lib/auth";
+import { requireUserId } from "@/lib/auth";
 import { getOwnedBusiness } from "@/lib/data";
 import { SampleReviewManager } from "@/components/sample-review-manager";
 
 export const metadata = { title: "Sample Reviews" };
 
 export default async function SamplesPage() {
-  const user = await requireUser();
-  const business = await getOwnedBusiness(user.id);
+  const userId = await requireUserId();
+  const business = await getOwnedBusiness(userId);
 
   return (
     <>

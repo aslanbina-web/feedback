@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getCurrentUser } from "@/lib/auth";
+import { getSessionUserId, getUserById } from "@/lib/auth";
 import { getDailyStats, getMonthlyStats } from "@/lib/data";
 import { config } from "@/lib/config";
 import { AppNav } from "@/components/app-nav";
@@ -18,25 +18,12 @@ const errors: Record<string, string> = {
 };
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ login_error?: string }> }) {
-  const user = await getCurrentUser();
-  const query = await searchParams;
-  if (!user) {
-    const message = query.login_error ? errors[query.login_error] : null;
-    return (
-      <main className="shell login">
-        <p className="eyebrow">A private exchange for local businesses</p>
-        <h1 className="login-mark">Give<br />Get.</h1>
-        <p className="login-sub">1 completed give = 1 get credit.<br />Fair, simple, useful.</p>
-        {message ? <div className="notice">{message}</div> : null}
-        <PwaLoginHelp />
-        <a className="button line-button full" href="/api/auth/line/start">Continue with LINE</a>
-        <a className="button alt full" href={config.officialAccountUrl} style={{ marginTop: 10 }}>Add Official LINE</a>
-        <p className="privacy-note">New accounts are admitted through our Official LINE. There is no public email signup.</p>
-      </main>
-    );
-  }
+  const [userId, query] = await Promise.all([getSessionUserId(), searchParams]);
+  const message = query.login_error ? errors[query.login_error] : null;
+  if (!userId) return <LoginScreen message={message} />;
 
-  const [stats, monthly] = await Promise.all([getDailyStats(user.id), getMonthlyStats(user.id)]);
+  const [user, stats, monthly] = await Promise.all([getUserById(userId), getDailyStats(userId), getMonthlyStats(userId)]);
+  if (!user) return <LoginScreen message={message} />;
   const planDays = Math.max(0, Math.ceil((new Date(user.plan_expires_at).getTime() - Date.now()) / 86_400_000));
   return (
     <main className="shell">
@@ -54,6 +41,21 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ l
         {user.role === "admin" ? <p><Link className="admin-link" href="/admin">Open Admin Desk →</Link></p> : null}
       </div>
       <AppNav />
+    </main>
+  );
+}
+
+function LoginScreen({ message }: { message: string | null }) {
+  return (
+    <main className="shell login">
+      <p className="eyebrow">A private exchange for local businesses</p>
+      <h1 className="login-mark">Give<br />Get.</h1>
+      <p className="login-sub">1 completed give = 1 get credit.<br />Fair, simple, useful.</p>
+      {message ? <div className="notice">{message}</div> : null}
+      <PwaLoginHelp />
+      <a className="button line-button full" href="/api/auth/line/start">Continue with LINE</a>
+      <a className="button alt full" href={config.officialAccountUrl} style={{ marginTop: 10 }}>Add Official LINE</a>
+      <p className="privacy-note">New accounts are admitted through our Official LINE. There is no public email signup.</p>
     </main>
   );
 }

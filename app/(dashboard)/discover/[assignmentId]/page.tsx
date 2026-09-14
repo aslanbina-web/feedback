@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { requireUser } from "@/lib/auth";
+import { requireUserId } from "@/lib/auth";
 import { getAssignment } from "@/lib/data";
 import { ReviewSteps } from "@/components/review-steps";
 import { AcceptAssignmentButton } from "@/components/accept-assignment-button";
@@ -8,9 +8,8 @@ import { getBusinessCategory } from "@/lib/business-categories";
 import { UiIcon } from "@/components/ui-icons";
 
 export default async function AcceptPage({ params }: { params: Promise<{ assignmentId: string }> }) {
-  const user = await requireUser();
-  const { assignmentId } = await params;
-  const assignment = await getAssignment(user.id, assignmentId);
+  const [userId, { assignmentId }] = await Promise.all([requireUserId(), params]);
+  const assignment = await getAssignment(userId, assignmentId);
   if (!assignment || new Date(assignment.assigned_until).getTime() <= Date.now()) notFound();
   return <>
     <ReviewSteps active={1} />

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { UiIcon } from "@/components/ui-icons";
 
@@ -16,6 +16,7 @@ const items = [
 export function AppNav() {
   const pathname = usePathname();
   const router = useRouter();
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
 
   useEffect(() => {
     for (const item of items) {
@@ -29,9 +30,26 @@ export function AppNav() {
     <nav className="nav" aria-label="Main navigation">
       {items.map((item) => {
         const profileChild = ["/samples", "/invite", "/notifications", "/settings"].includes(pathname);
-        const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href) || (item.href === "/profile" && profileChild);
+        const current = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href) || (item.href === "/profile" && profileChild);
+        const active = pendingHref ? item.href === pendingHref : current;
         return (
-          <Link key={item.href} href={item.href} prefetch className={active ? "active" : ""} aria-current={active ? "page" : undefined}>
+          <Link
+            key={item.href}
+            href={item.href}
+            prefetch
+            className={active ? "active" : ""}
+            aria-current={current ? "page" : undefined}
+            aria-busy={pendingHref === item.href && !current ? true : undefined}
+            onPointerDown={() => {
+              if (!current) {
+                setPendingHref(item.href);
+                router.prefetch(item.href);
+              }
+            }}
+            onClick={() => {
+              if (!current) setPendingHref(item.href);
+            }}
+          >
             <span className="nav-bubble" aria-hidden="true"><UiIcon name={item.icon} /></span>
             {item.label}
           </Link>

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { requireUser } from "@/lib/auth";
+import { requireUser, requireUserId } from "@/lib/auth";
 import { getDailyStats, getMonthlyStats, getOwnedBusiness } from "@/lib/data";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,8 +9,8 @@ import { UiIcon } from "@/components/ui-icons";
 export const metadata: Metadata = { title: "My Card" };
 
 export default async function ProfilePage() {
-  const user = await requireUser();
-  const [business, stats, monthly] = await Promise.all([getOwnedBusiness(user.id), getDailyStats(user.id), getMonthlyStats(user.id)]);
+  const userId = await requireUserId();
+  const [user, business, stats, monthly] = await Promise.all([requireUser(userId), getOwnedBusiness(userId), getDailyStats(userId), getMonthlyStats(userId)]);
   const planDays = Math.max(0, Math.ceil((new Date(user.plan_expires_at).getTime() - Date.now()) / 86_400_000));
   const category = getBusinessCategory(business?.category);
   return <>

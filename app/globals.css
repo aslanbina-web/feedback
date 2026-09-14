@@ -234,6 +234,60 @@ html { background: #f5f3e9; }
 body { background: radial-gradient(circle at 50% 8%, #fffef9 0, #f5f3e9 70%); color: var(--ink); }
 button { -webkit-tap-highlight-color: transparent; }
 
+:where(a, button, [role="button"], summary, input, textarea, select) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:where(a, button, [role="button"], summary):focus:not(:focus-visible) {
+  outline: none;
+}
+
+:where(a, button, [role="button"], summary):focus-visible {
+  outline: 3px solid var(--sky);
+  outline-offset: 3px;
+}
+
+.route-loading {
+  display: grid;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.route-loading > span:not(.sr-only) {
+  display: block;
+  overflow: hidden;
+  border: 2px solid #d7e4f5;
+  background: linear-gradient(100deg, #f3f7ff 25%, #fffefa 43%, #f3f7ff 61%);
+  background-size: 240% 100%;
+  animation: route-shimmer .85s linear infinite;
+}
+
+.route-loading-title { width: 68%; height: 34px; border-radius: 12px; }
+.route-loading-line { width: 54%; height: 15px; border-radius: 999px; }
+.route-loading-line.short { width: 42%; }
+.route-loading-card { height: 126px; border: 3px solid var(--ink) !important; border-radius: 20px; }
+.route-loading-card.compact { height: 96px; }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes route-shimmer {
+  to { background-position-x: -240%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-loading > span:not(.sr-only) { animation: none; }
+}
+
 .shell {
   position: relative;
   width: min(100%, 390px);
