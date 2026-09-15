@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-type Status = "loading" | "ready" | "signing-in" | "error";
+type Status = "loading" | "ready" | "error";
 
 export function LiffLoginButton({ liffId }: { liffId: string }) {
   const [status, setStatus] = useState<Status>("loading");
@@ -60,20 +60,19 @@ export function LiffLoginButton({ liffId }: { liffId: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [liffId]);
 
-  async function handleClick() {
-    setStatus("signing-in");
-    const liff = (await import("@line/liff")).default;
-    liff.login({ redirectUri: window.location.href });
-  }
-
   if (status === "loading") return null;
 
+  // A real, direct <a href> tap on LINE's own liff.line.me domain -- not a
+  // JS-triggered liff.login() call -- for the same reason the classic OAuth
+  // link had to become a direct link instead of a server redirect: iOS only
+  // reliably opens the LINE app on a genuine direct navigation, not one
+  // triggered by code.
   return (
     <>
       {error ? <div className="notice">{error}</div> : null}
-      <button type="button" className="button line-button full" onClick={handleClick} disabled={status === "signing-in"}>
-        {status === "signing-in" ? "Signing in…" : "Continue with LINE"}
-      </button>
+      <a className="button line-button full" href={`https://liff.line.me/${liffId}`}>
+        Continue with LINE
+      </a>
     </>
   );
 }
