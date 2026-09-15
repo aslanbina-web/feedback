@@ -8,8 +8,11 @@ export type AppUser = {
   daily_receive_limit: number;
   plan_expires_at: string;
   plan_started_at: string;
+  plan_activated_at: string | null;
   plan_give_limit: number;
   plan_receive_limit: number;
+  oa_friend_verified_at: string | null;
+  referral_reward_available_from: string;
   onboarding_tutorial_seen_at: string | null;
   onboarding_completed_at: string | null;
   referral_code: string;

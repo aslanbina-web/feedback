@@ -31,12 +31,10 @@ export async function GET(request: NextRequest) {
       verifyLineIdentity(tokens.id_token, nonce),
       verifyLineAccessToken(tokens.access_token),
     ]);
-    await completeLineLogin(identity, tokens.access_token);
-    return NextResponse.redirect(`${config.appUrl}/onboarding`);
+    const result = await completeLineLogin(identity, tokens.access_token);
+    const destination = result.officialAccountFriend ? "/onboarding" : "/onboarding/line?not_friend=1";
+    return NextResponse.redirect(`${config.appUrl}${destination}`);
   } catch (error) {
-    if (error instanceof Error && error.message === "official_account_required") {
-      return loginError("official_account_required");
-    }
     console.error("LINE callback failed:", error instanceof Error ? error.message : "Unknown error");
     return loginError("line_login_failed");
   }

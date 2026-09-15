@@ -243,6 +243,33 @@ body {
 .onboarding-flow span { display: grid; justify-items: center; padding: 8px 12px; border: 2px solid var(--ink); border-radius: 14px; background: #f5f8ff; font: 600 15px "Fredoka", sans-serif; }
 .onboarding-flow b { margin: 4px 0 -7px; color: #ff5d43; font-size: 17px; line-height: 1; }
 .onboarding-next { margin-top: 1px; }
+
+.oa-gate {
+  display: grid;
+  justify-items: center;
+  min-height: 520px;
+  padding: 28px 22px;
+  border: 4px solid var(--ink);
+  border-radius: 32px 42px 30px 45px;
+  background: #fff;
+  box-shadow: 7px 8px 0 var(--sun);
+  text-align: center;
+}
+.oa-gate-art {
+  display: grid;
+  place-items: center;
+  width: 112px;
+  height: 104px;
+  border: 4px solid var(--ink);
+  border-radius: 36px 43px 31px 46px;
+  background: #fff0a8;
+  transform: rotate(-3deg);
+}
+.oa-gate-art svg { width: 68px; height: 68px; fill: #ffd956; }
+.oa-gate h1 { margin: 4px 0 0; font: 600 33px/1.05 "Fredoka", sans-serif; }
+.oa-gate .onboarding-body { max-width: 310px; }
+.oa-gate-actions { display: grid; width: 100%; gap: 11px; margin-top: auto; }
+.oa-gate .privacy-note { margin: 15px 0 0; }
 .home-tip,
 .discover-privacy {
   display: flex;

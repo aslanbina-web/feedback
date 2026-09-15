@@ -58,7 +58,7 @@ export const getUserById = cache(async (userId: string): Promise<AppUser | null>
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) return null;
   const { data } = await getSupabaseAdmin()
     .from("users")
-    .select("id,display_name,avatar_url,role,credit_balance,daily_give_limit,daily_receive_limit,plan_expires_at,plan_started_at,plan_give_limit,plan_receive_limit,onboarding_tutorial_seen_at,onboarding_completed_at,referral_code")
+    .select("id,display_name,avatar_url,role,credit_balance,daily_give_limit,daily_receive_limit,plan_expires_at,plan_started_at,plan_activated_at,plan_give_limit,plan_receive_limit,oa_friend_verified_at,referral_reward_available_from,onboarding_tutorial_seen_at,onboarding_completed_at,referral_code")
     .eq("id", userId)
     .maybeSingle();
   return (data as AppUser | null) ?? null;

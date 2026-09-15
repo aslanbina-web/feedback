@@ -1,5 +1,6 @@
 import "server-only";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { config } from "@/lib/config";
 import type { AdminSubmission, AdminTaskReport, AdminUser, DailyStats, DiscoverBusiness, HistoryData, PlanStats, QueueTask } from "@/lib/types";
 
 export async function expireOverdueTasks() {
@@ -117,11 +118,10 @@ export async function getOnboardingDestination(userId: string) {
   const supabase = getSupabaseAdmin();
   const { data: user, error: userError } = await supabase
     .from("users")
-    .select("onboarding_tutorial_seen_at,onboarding_completed_at")
+    .select("onboarding_tutorial_seen_at,onboarding_completed_at,oa_friend_verified_at,plan_activated_at")
     .eq("id", userId)
     .single();
   if (userError) throw userError;
-  if (user.onboarding_completed_at) return "/discover";
   if (!user.onboarding_tutorial_seen_at) return "/onboarding";
 
   const { data: business, error: businessError } = await supabase
@@ -131,22 +131,42 @@ export async function getOnboardingDestination(userId: string) {
     .maybeSingle();
   if (businessError) throw businessError;
   if (!business) return "/profile/edit?setup=1";
+  if (config.requiresOfficialAccountFriend && !user.oa_friend_verified_at) return "/onboarding/line";
   if (!business.business_review_samples?.length) return "/samples?setup=1";
 
-  const { error: completeError } = await supabase
-    .from("users")
-    .update({ onboarding_completed_at: new Date().toISOString() })
-    .eq("id", userId);
-  if (completeError) throw completeError;
+  if (!user.plan_activated_at) return "/onboarding/line";
+
+  if (!user.onboarding_completed_at) {
+    const { error: completeError } = await supabase
+      .from("users")
+      .update({ onboarding_completed_at: new Date().toISOString() })
+      .eq("id", userId);
+    if (completeError) throw completeError;
+  }
   return "/discover";
 }
 
 export async function getReferralStats(userId: string) {
-  const { count, error } = await getSupabaseAdmin().from("referrals" as never)
-    .select("id" as never, { count: "exact", head: true })
-    .eq("inviter_id" as never, userId).not("rewarded_at" as never, "is", null);
-  if (error) throw error;
-  return { rewarded: count ?? 0 };
+  const supabase = getSupabaseAdmin();
+  const [rewardedResult, pendingResult, userResult] = await Promise.all([
+    supabase.from("referrals")
+      .select("id", { count: "exact", head: true })
+      .eq("inviter_id", userId).eq("reward_status", "rewarded"),
+    supabase.from("referrals")
+      .select("id", { count: "exact", head: true })
+      .eq("inviter_id", userId).eq("reward_status", "pending"),
+    supabase.from("users").select("referral_reward_available_from").eq("id", userId).single(),
+  ]);
+  if (rewardedResult.error) throw rewardedResult.error;
+  if (pendingResult.error) throw pendingResult.error;
+  if (userResult.error) throw userResult.error;
+  const availableFrom = userResult.data.referral_reward_available_from;
+  return {
+    rewarded: rewardedResult.count ?? 0,
+    pending: pendingResult.count ?? 0,
+    availableFrom,
+    rewardAvailable: new Date(availableFrom).getTime() <= Date.now(),
+  };
 }
 
 export async function getAdminSubmissions() {

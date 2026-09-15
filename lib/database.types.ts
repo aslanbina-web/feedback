@@ -26,6 +26,7 @@ export type Database = {
           name: string
           owner_id: string
           review_url: string
+          sample_review_added_at: string | null
           updated_at: string
         }
         Insert: {
@@ -39,6 +40,7 @@ export type Database = {
           name: string
           owner_id: string
           review_url: string
+          sample_review_added_at?: string | null
           updated_at?: string
         }
         Update: {
@@ -52,6 +54,7 @@ export type Database = {
           name?: string
           owner_id?: string
           review_url?: string
+          sample_review_added_at?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -142,6 +145,51 @@ export type Database = {
           {
             foreignKeyName: "credit_ledger_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referrals: {
+        Row: {
+          created_at: string
+          id: string
+          invitee_id: string
+          inviter_id: string
+          qualified_at: string | null
+          reward_status: string
+          rewarded_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invitee_id: string
+          inviter_id: string
+          qualified_at?: string | null
+          reward_status?: string
+          rewarded_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invitee_id?: string
+          inviter_id?: string
+          qualified_at?: string | null
+          reward_status?: string
+          rewarded_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_invitee_id_fkey"
+            columns: ["invitee_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_inviter_id_fkey"
+            columns: ["inviter_id"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
@@ -284,13 +332,16 @@ export type Database = {
           give_allowance_balance: number
           id: string
           line_user_id: string
+          oa_friend_verified_at: string | null
           onboarding_completed_at: string | null
           onboarding_tutorial_seen_at: string | null
+          plan_activated_at: string | null
           plan_expires_at: string
           plan_give_limit: number
           plan_receive_limit: number
           plan_started_at: string
           referral_code: string
+          referral_reward_available_from: string
           referred_by: string | null
           receive_allowance_balance: number
           role: Database["public"]["Enums"]["user_role"]
@@ -307,13 +358,16 @@ export type Database = {
           give_allowance_balance?: number
           id?: string
           line_user_id: string
+          oa_friend_verified_at?: string | null
           onboarding_completed_at?: string | null
           onboarding_tutorial_seen_at?: string | null
+          plan_activated_at?: string | null
           plan_expires_at?: string
           plan_give_limit?: number
           plan_receive_limit?: number
           plan_started_at?: string
           referral_code?: string
+          referral_reward_available_from?: string
           referred_by?: string | null
           receive_allowance_balance?: number
           role?: Database["public"]["Enums"]["user_role"]
@@ -330,13 +384,16 @@ export type Database = {
           give_allowance_balance?: number
           id?: string
           line_user_id?: string
+          oa_friend_verified_at?: string | null
           onboarding_completed_at?: string | null
           onboarding_tutorial_seen_at?: string | null
+          plan_activated_at?: string | null
           plan_expires_at?: string
           plan_give_limit?: number
           plan_receive_limit?: number
           plan_started_at?: string
           referral_code?: string
+          referral_reward_available_from?: string
           referred_by?: string | null
           receive_allowance_balance?: number
           role?: Database["public"]["Enums"]["user_role"]
@@ -365,6 +422,14 @@ export type Database = {
       complete_review_task: {
         Args: { p_giver_id: string; p_proof_url: string; p_task_id: string }
         Returns: string
+      }
+      claim_referral: {
+        Args: { p_invitee_id: string; p_referral_code: string }
+        Returns: boolean
+      }
+      confirm_official_line_friend: {
+        Args: { p_user_id: string }
+        Returns: boolean
       }
       expire_overdue_tasks: {
         Args: Record<PropertyKey, never>

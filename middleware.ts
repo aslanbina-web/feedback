@@ -43,6 +43,16 @@ export function middleware(request: NextRequest) {
   const cookieOptions = { httpOnly: true, sameSite: "lax" as const, secure: process.env.NODE_ENV === "production", path: "/", maxAge: 600 };
   response.cookies.set(COOKIE_PREFIX + "line_oauth_state", state, cookieOptions);
   response.cookies.set(COOKIE_PREFIX + "line_oauth_nonce", nonce, cookieOptions);
+  const referralCode = (request.nextUrl.searchParams.get("ref") || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "")
+    .slice(0, 20);
+  if (referralCode) {
+    response.cookies.set(COOKIE_PREFIX + "giveget_referral", referralCode, {
+      ...cookieOptions,
+      maxAge: 60 * 60 * 24 * 7,
+    });
+  }
   return response;
 }
 

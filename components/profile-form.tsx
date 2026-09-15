@@ -39,7 +39,7 @@ export function ProfileForm({ business, preview = false, mode = "full", setup = 
     setMessage(response.ok ? "Card saved." : result.error || "Could not save card.");
     if (response.ok) {
       router.refresh();
-      if (mode === "full") router.push(setup ? "/samples?setup=1" : "/profile");
+      if (mode === "full") router.push(setup ? "/onboarding/line" : "/profile");
     }
   }
 

@@ -21,11 +21,10 @@ export default async function ProfilePage() {
     <section className="business-card-panel" id="business-card">
       <div className="profile-title-row">
         <h1 className="page-title compact-title">My Card.</h1>
-        <Link className="profile-edit-button" href="/profile/edit"><UiIcon name="edit" /> Edit</Link>
+        {business ? <Link className="profile-edit-button" href="/profile/edit"><UiIcon name="edit" /> Edit</Link> : null}
       </div>
-      {business ? <article className="business-summary"><Image src={category.image} alt="" width={95} height={110} /><div><h2>{business.name}</h2><span>{category.name} · {business.city} · {business.district}</span><p>{business.generic_description}</p></div></article> : <div className="empty">Create your business card below.</div>}
-      <Link className="sample-action-link" href={business ? "/samples" : "#business-card"}><UiIcon name="edit" /> Add Sample Reviews</Link>
-      <p className="sample-helper">Add sample reviews you prefer for your shop.<br /><strong>{business?.business_review_samples?.length ?? 0} samples available</strong></p>
+      {business ? <article className="business-summary"><Image src={category.image} alt="" width={95} height={110} /><div><h2>{business.name}</h2><span>{category.name} · {business.city} · {business.district}</span><p>{business.generic_description}</p></div></article> : <div className="empty"><strong>Your business card isn’t ready yet.</strong><br />Create it before entering Discover.</div>}
+      {business ? <><Link className="sample-action-link" href="/samples"><UiIcon name="edit" /> {(business.business_review_samples?.length ?? 0) > 0 ? "Manage Sample Reviews" : "+ Add Sample Reviews"}</Link><p className="sample-helper">Add sample reviews you prefer for your shop.<br /><strong>{business.business_review_samples?.length ?? 0} samples available</strong></p></> : <Link className="button green full" href="/profile/edit?setup=1">Create My Business Card →</Link>}
       {business && (business.business_review_samples?.length ?? 0) <= 1 ? (
         <p className="notice">
           {(business.business_review_samples?.length ?? 0) === 0

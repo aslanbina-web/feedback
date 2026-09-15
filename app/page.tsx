@@ -3,7 +3,6 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getSessionUserId, getUserById } from "@/lib/auth";
 import { getDailyStats, getOnboardingDestination, getPlanStats } from "@/lib/data";
-import { config } from "@/lib/config";
 import { AppNav } from "@/components/app-nav";
 import Image from "next/image";
 import { UiIcon } from "@/components/ui-icons";
@@ -14,23 +13,24 @@ export const dynamic = "force-dynamic";
 
 const errors: Record<string, string> = {
   invalid_state: "The LINE login expired. Please try again.",
-  official_account_required: "Add our Official LINE first, then return and sign in.",
   line_login_failed: "LINE login could not be completed. Please try again.",
   line_cancelled: "LINE sign-in was cancelled.",
   configuration: "LINE sign-in is being connected. Please check again shortly.",
 };
 
-export default async function Home({ searchParams }: { searchParams: Promise<{ login_error?: string }> }) {
+export default async function Home({ searchParams }: { searchParams: Promise<{ login_error?: string; ref?: string }> }) {
   const [userId, query, hdrs] = await Promise.all([getSessionUserId(), searchParams, headers()]);
   const message = query.login_error ? errors[query.login_error] : null;
   const lineAuthUrl = hdrs.get("x-line-auth-url") || "/api/auth/line/start";
   if (!userId) {
-    return <LoginScreen message={message} lineAuthUrl={lineAuthUrl} />;
+    return <LoginScreen message={message} lineAuthUrl={lineAuthUrl} referralCode={query.ref} />;
   }
 
-  const [user, stats, plan] = await Promise.all([getUserById(userId), getDailyStats(userId), getPlanStats(userId)]);
-  if (!user) return <LoginScreen message={message} lineAuthUrl={lineAuthUrl} />;
-  if (!user.onboarding_completed_at) redirect(await getOnboardingDestination(userId));
+  const user = await getUserById(userId);
+  if (!user) return <LoginScreen message={message} lineAuthUrl={lineAuthUrl} referralCode={query.ref} />;
+  const onboardingDestination = await getOnboardingDestination(userId);
+  if (onboardingDestination !== "/discover") redirect(onboardingDestination);
+  const [stats, plan] = await Promise.all([getDailyStats(userId), getPlanStats(userId)]);
   return (
     <main className="shell">
       <header className="masthead"><span className="brand">GiveGet</span><div className="header-actions"><Link className="header-icon" href="/notifications" aria-label="Notifications"><UiIcon name="bell" /></Link></div></header>
@@ -51,7 +51,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ l
   );
 }
 
-function LoginScreen({ message, lineAuthUrl }: { message: string | null; lineAuthUrl: string }) {
+function LoginScreen({ message, lineAuthUrl, referralCode }: { message: string | null; lineAuthUrl: string; referralCode?: string }) {
   const liffId = process.env.NEXT_PUBLIC_LIFF_ID;
   return (
     <main className="shell login">
@@ -62,14 +62,13 @@ function LoginScreen({ message, lineAuthUrl }: { message: string | null; lineAut
       <PwaLoginHelp />
       {liffId ? (
         <>
-          <LiffLoginButton liffId={liffId} />
+          <LiffLoginButton liffId={liffId} referralCode={referralCode} />
           <a className="text-button" href={lineAuthUrl}>Trouble signing in? Try classic sign-in</a>
         </>
       ) : (
         <a className="button line-button full" href={lineAuthUrl}>Continue with LINE</a>
       )}
-      <a className="button alt full" href={config.officialAccountUrl} style={{ marginTop: 10 }}>Add Official LINE</a>
-      <p className="privacy-note">New accounts are admitted through our Official LINE. There is no public email signup.</p>
+      <p className="privacy-note">Sign in first, then we’ll guide you through your business setup.</p>
     </main>
   );
 }
