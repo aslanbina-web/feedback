@@ -1,14 +1,19 @@
 export const BUSINESS_CATEGORIES = [
-  { name: "Restaurant / Café", image: "/category-images/restaurant-cafe.jpg", source: "https://unsplash.com/s/photos/restaurant-interior" },
-  { name: "Beauty / Salon", image: "/category-images/beauty-salon.jpg", source: "https://unsplash.com/s/photos/beauty-salon" },
-  { name: "Retail / Shop", image: "/category-images/retail.jpg", source: "https://unsplash.com/s/photos/retail-store" },
-  { name: "Fitness", image: "/category-images/fitness.jpg", source: "https://unsplash.com/s/photos/fitness-gym" },
-  { name: "Health / Wellness", image: "/category-images/health-wellness.jpg", source: "https://unsplash.com/s/photos/health-wellness" },
-  { name: "Home Services", image: "/category-images/home-services.jpg", source: "https://unsplash.com/s/photos/home-cleaning" },
-  { name: "Professional Services", image: "/category-images/professional-services.jpg", source: "https://unsplash.com/s/photos/professional-office" },
-  { name: "Automotive", image: "/category-images/automotive.jpg", source: "https://unsplash.com/s/photos/auto-repair" },
-  { name: "Pet Services", image: "/category-images/pet-services.jpg", source: "https://unsplash.com/s/photos/pet-grooming" },
-  { name: "Other", image: "/category-images/other.jpg", source: "https://unsplash.com/s/photos/small-business" },
+  { name: "Restaurant / Café", image: "/category-icons/restaurant-cafe.png" },
+  { name: "Beauty / Salon", image: "/category-icons/beauty-salon.png" },
+  { name: "Retail / Shop", image: "/category-icons/retail-shop.png" },
+  { name: "Fitness / Sports", image: "/category-icons/fitness-sports.png" },
+  { name: "Health / Wellness", image: "/category-icons/health-wellness.png" },
+  { name: "Medical / Dental", image: "/category-icons/medical-dental.png" },
+  { name: "Home Services", image: "/category-icons/home-services.png" },
+  { name: "Professional Services", image: "/category-icons/professional-services.png" },
+  { name: "Automotive", image: "/category-icons/automotive.png" },
+  { name: "Pet Services", image: "/category-icons/pet-services.png" },
+  { name: "Education / Tutoring", image: "/category-icons/education-tutoring.png" },
+  { name: "Real Estate", image: "/category-icons/real-estate.png" },
+  { name: "Hotel / Travel", image: "/category-icons/hotel-travel.png" },
+  { name: "Arts / Entertainment", image: "/category-icons/arts-entertainment.png" },
+  { name: "Other", image: "/category-icons/other.png" },
 ] as const;
 
 export type BusinessCategory = (typeof BUSINESS_CATEGORIES)[number]["name"];
@@ -22,17 +27,22 @@ export function getBusinessCategory(value: string | null | undefined) {
   if (exact) return exact;
 
   const legacy = value?.toLowerCase() ?? "";
-  const aliases: Array<[number, string[]]> = [
-    [0, ["restaurant", "cafe", "café", "food", "bakery", "brunch"]],
-    [1, ["beauty", "salon", "hair", "nail", "spa"]],
-    [2, ["retail", "shop", "store", "boutique", "florist"]],
-    [3, ["fitness", "gym", "workout"]],
-    [4, ["health", "wellness", "clinic", "medical", "dental"]],
-    [5, ["home", "clean", "plumb", "electric", "repair"]],
-    [6, ["professional", "legal", "account", "estate", "agency", "consult"]],
-    [7, ["auto", "car", "mechanic"]],
-    [8, ["pet", "vet", "groom"]],
+  const aliases: Array<[BusinessCategory, string[]]> = [
+    ["Restaurant / Café", ["restaurant", "cafe", "café", "food", "bakery", "brunch", "bar", "drink"]],
+    ["Beauty / Salon", ["beauty", "salon", "hair", "nail", "spa", "barber"]],
+    ["Retail / Shop", ["retail", "shop", "store", "boutique", "florist", "flower"]],
+    ["Fitness / Sports", ["fitness", "gym", "workout", "sport", "yoga", "pilates"]],
+    ["Medical / Dental", ["clinic", "medical", "dental", "dentist", "doctor", "pharmacy"]],
+    ["Health / Wellness", ["health", "wellness", "massage", "therapy", "nutrition"]],
+    ["Home Services", ["home", "clean", "plumb", "electric", "repair", "construction", "moving"]],
+    ["Professional Services", ["professional", "legal", "account", "finance", "insurance", "agency", "consult"]],
+    ["Automotive", ["auto", "car", "mechanic", "motor", "vehicle"]],
+    ["Pet Services", ["pet", "vet", "groom", "animal"]],
+    ["Education / Tutoring", ["education", "school", "tutor", "learn", "training", "language"]],
+    ["Real Estate", ["real estate", "property", "realtor", "housing"]],
+    ["Hotel / Travel", ["hotel", "hostel", "travel", "tour", "accommodation", "lodging"]],
+    ["Arts / Entertainment", ["art", "music", "entertainment", "cinema", "game", "event", "photo"]],
   ];
   const match = aliases.find(([, words]) => words.some((word) => legacy.includes(word)));
-  return BUSINESS_CATEGORIES[match?.[0] ?? BUSINESS_CATEGORIES.length - 1];
+  return BUSINESS_CATEGORIES.find((category) => category.name === match?.[0]) ?? BUSINESS_CATEGORIES.at(-1)!;
 }

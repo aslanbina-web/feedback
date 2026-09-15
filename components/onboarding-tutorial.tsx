@@ -28,7 +28,9 @@ const slides = [
   },
 ];
 
-export function OnboardingTutorial({ preview = false }: { preview?: boolean }) {
+type TutorialMode = "onboarding" | "preview" | "review";
+
+export function OnboardingTutorial({ mode = "onboarding" }: { mode?: TutorialMode }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -40,8 +42,12 @@ export function OnboardingTutorial({ preview = false }: { preview?: boolean }) {
       setStep((current) => current + 1);
       return;
     }
-    if (preview) {
+    if (mode === "preview") {
       router.push("/preview?screen=edit");
+      return;
+    }
+    if (mode === "review") {
+      router.push("/settings");
       return;
     }
     setBusy(true);
@@ -71,7 +77,7 @@ export function OnboardingTutorial({ preview = false }: { preview?: boolean }) {
         </div>
       </article>
       <button className="button green full onboarding-next" type="button" disabled={busy} onClick={continueSetup}>
-        {busy ? "Opening setup…" : step === slides.length - 1 ? "Create My Business Card →" : "Next →"}
+        {busy ? "Opening setup…" : step === slides.length - 1 ? mode === "review" ? "Back to Settings →" : "Create My Business Card →" : "Next →"}
       </button>
       {step > 0 && !busy ? <button className="text-button" type="button" onClick={() => setStep((current) => current - 1)}>Back</button> : null}
       <p className="form-message" aria-live="polite">{error}</p>

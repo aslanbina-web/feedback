@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BUSINESS_CATEGORIES, getBusinessCategory, isBusinessCategory } from "@/lib/business-categories";
@@ -61,7 +62,7 @@ export function ProfileForm({ business, preview = false, mode = "full", setup = 
           </select>
         </label>
         <div className="business-category-preview">
-          <div className="business-category-art" aria-hidden="true" />
+          <Image className="business-category-art" src={getBusinessCategory(category).image} alt="" width={80} height={80} />
           <div><strong>{category}</strong><span>A matching category image is applied automatically.</span></div>
         </div>
         <label>Business name<input name="name" defaultValue={business?.name} required maxLength={120} /></label>
