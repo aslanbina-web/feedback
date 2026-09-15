@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       verifyLineAccessToken(body.accessToken),
     ]);
     await completeLineLogin(identity, body.accessToken);
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, redirectTo: "/onboarding" });
   } catch (error) {
     if (error instanceof Error && error.message === "official_account_required") {
       return NextResponse.json({ error: "official_account_required" }, { status: 403 });

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { requireUser, requireUserId } from "@/lib/auth";
-import { getDailyStats, getMonthlyStats, getOwnedBusiness } from "@/lib/data";
+import { getDailyStats, getPlanStats, getOwnedBusiness } from "@/lib/data";
 import Image from "next/image";
 import Link from "next/link";
 import { getBusinessCategory } from "@/lib/business-categories";
@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: "My Card" };
 
 export default async function ProfilePage() {
   const userId = await requireUserId();
-  const [user, business, stats, monthly] = await Promise.all([requireUser(userId), getOwnedBusiness(userId), getDailyStats(userId), getMonthlyStats(userId)]);
+  const [user, business, stats, plan] = await Promise.all([requireUser(userId), getOwnedBusiness(userId), getDailyStats(userId), getPlanStats(userId)]);
   const planDays = Math.max(0, Math.ceil((new Date(user.plan_expires_at).getTime() - Date.now()) / 86_400_000));
   const category = getBusinessCategory(business?.category);
   return <>
@@ -34,7 +34,7 @@ export default async function ProfilePage() {
         </p>
       ) : null}
     </section>
-    <div className="quota-stats"><div><span>Credits</span><strong><UiIcon name="star" /> {user.credit_balance}</strong></div><div><span>Gives</span><strong className="green-text">{monthly.gives}/30</strong><small>{planDays} days left</small></div><div><span>Receives</span><strong className="red-text">{monthly.receives}/30</strong><small>{planDays} days left</small></div></div>
+    <div className="quota-stats"><div><span>Credits</span><strong><UiIcon name="star" /> {user.credit_balance}</strong></div><div><span>Gives</span><strong className="green-text">{plan.gives}/{plan.giveLimit}</strong><small>{planDays} days left</small></div><div><span>Receives</span><strong className="red-text">{plan.receives}/{plan.receiveLimit}</strong><small>{planDays} days left</small></div></div>
     <p className="saved-passes">Give passes: {stats.giveAllowance} · Receive passes: {stats.receiveAllowance}<br />Saved passes never expire.</p>
     <Link href="/invite" className="text-button">Invite &amp; Grow →</Link>
   </>;

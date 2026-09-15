@@ -2,11 +2,15 @@ import type { Metadata } from "next";
 import { requireUser, requireUserId } from "@/lib/auth";
 import { getDiscoverFeed } from "@/lib/data";
 import { DiscoverClient } from "@/components/discover-client";
+import { getOnboardingDestination } from "@/lib/data";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = { title: "Discover" };
 
 export default async function DiscoverPage() {
   const userId = await requireUserId();
+  const onboardingDestination = await getOnboardingDestination(userId);
+  if (onboardingDestination !== "/discover") redirect(onboardingDestination);
   const [user, businesses] = await Promise.all([requireUser(userId), getDiscoverFeed(userId)]);
   const expired = new Date(user.plan_expires_at).getTime() <= Date.now();
   if (expired) {

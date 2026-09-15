@@ -25,7 +25,8 @@ export function LiffLoginButton({ liffId }: { liffId: string }) {
         body: JSON.stringify({ idToken, accessToken }),
       });
       if (res.ok) {
-        window.location.href = "/discover";
+        const body = (await res.json()) as { redirectTo?: string };
+        window.location.href = body.redirectTo || "/onboarding";
         return;
       }
       const body = (await res.json().catch(() => null)) as { error?: string } | null;

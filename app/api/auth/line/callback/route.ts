@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
       verifyLineAccessToken(tokens.access_token),
     ]);
     await completeLineLogin(identity, tokens.access_token);
-    return NextResponse.redirect(`${config.appUrl}/discover`);
+    return NextResponse.redirect(`${config.appUrl}/onboarding`);
   } catch (error) {
     if (error instanceof Error && error.message === "official_account_required") {
       return loginError("official_account_required");

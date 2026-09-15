@@ -5,14 +5,14 @@ import { getOwnedBusiness } from "@/lib/data";
 
 export const metadata: Metadata = { title: "Create or Edit Business" };
 
-export default async function EditBusinessPage() {
-  const userId = await requireUserId();
+export default async function EditBusinessPage({ searchParams }: { searchParams: Promise<{ setup?: string }> }) {
+  const [userId, query] = await Promise.all([requireUserId(), searchParams]);
   const business = await getOwnedBusiness(userId);
 
   return <>
     <div className="business-setup-progress" aria-label="Profile setup progress"><span /><span /></div>
     <h1 className="page-title compact-title">Create Your Card.</h1>
     <p className="lede blue business-edit-lede">This information powers your assigned matches.</p>
-    <ProfileForm business={business} />
+    <ProfileForm business={business} setup={query.setup === "1"} />
   </>;
 }

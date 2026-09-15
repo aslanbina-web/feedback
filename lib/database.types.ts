@@ -284,7 +284,12 @@ export type Database = {
           give_allowance_balance: number
           id: string
           line_user_id: string
+          onboarding_completed_at: string | null
+          onboarding_tutorial_seen_at: string | null
           plan_expires_at: string
+          plan_give_limit: number
+          plan_receive_limit: number
+          plan_started_at: string
           referral_code: string
           referred_by: string | null
           receive_allowance_balance: number
@@ -302,7 +307,12 @@ export type Database = {
           give_allowance_balance?: number
           id?: string
           line_user_id: string
+          onboarding_completed_at?: string | null
+          onboarding_tutorial_seen_at?: string | null
           plan_expires_at?: string
+          plan_give_limit?: number
+          plan_receive_limit?: number
+          plan_started_at?: string
           referral_code?: string
           referred_by?: string | null
           receive_allowance_balance?: number
@@ -320,7 +330,12 @@ export type Database = {
           give_allowance_balance?: number
           id?: string
           line_user_id?: string
+          onboarding_completed_at?: string | null
+          onboarding_tutorial_seen_at?: string | null
           plan_expires_at?: string
+          plan_give_limit?: number
+          plan_receive_limit?: number
+          plan_started_at?: string
           referral_code?: string
           referred_by?: string | null
           receive_allowance_balance?: number
@@ -376,6 +391,17 @@ export type Database = {
           district: string
           generic_description: string
           id: string
+        }[]
+      }
+      get_plan_stats: {
+        Args: { p_user_id: string }
+        Returns: {
+          give_limit: number
+          gives: number
+          period_ends_at: string
+          period_started_at: string
+          receive_limit: number
+          receives: number
         }[]
       }
       review_submission: {

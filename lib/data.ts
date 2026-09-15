@@ -1,6 +1,6 @@
 import "server-only";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
-import type { AdminSubmission, AdminTaskReport, AdminUser, DailyStats, DiscoverBusiness, HistoryData, MonthlyStats, QueueTask } from "@/lib/types";
+import type { AdminSubmission, AdminTaskReport, AdminUser, DailyStats, DiscoverBusiness, HistoryData, PlanStats, QueueTask } from "@/lib/types";
 
 export async function expireOverdueTasks() {
   const { error } = await getSupabaseAdmin().rpc("expire_overdue_tasks" as never);
@@ -98,11 +98,47 @@ export async function getQueueTask(userId: string, taskId: string) {
   return rows[0] ?? null;
 }
 
-export async function getMonthlyStats(userId: string): Promise<MonthlyStats> {
-  const { data, error } = await getSupabaseAdmin().rpc("get_monthly_stats" as never, { p_user_id: userId } as never);
+export async function getPlanStats(userId: string): Promise<PlanStats> {
+  const { data, error } = await getSupabaseAdmin().rpc("get_plan_stats" as never, { p_user_id: userId } as never);
   if (error) throw error;
   const row = Array.isArray(data) ? data[0] : data;
-  return { gives: Number((row as { gives?: number } | undefined)?.gives ?? 0), receives: Number((row as { receives?: number } | undefined)?.receives ?? 0) };
+  const stats = row as { gives?: number; receives?: number; give_limit?: number; receive_limit?: number; period_started_at?: string; period_ends_at?: string } | undefined;
+  return {
+    gives: Number(stats?.gives ?? 0),
+    receives: Number(stats?.receives ?? 0),
+    giveLimit: Number(stats?.give_limit ?? 30),
+    receiveLimit: Number(stats?.receive_limit ?? 30),
+    periodStartedAt: stats?.period_started_at ?? "",
+    periodEndsAt: stats?.period_ends_at ?? "",
+  };
+}
+
+export async function getOnboardingDestination(userId: string) {
+  const supabase = getSupabaseAdmin();
+  const { data: user, error: userError } = await supabase
+    .from("users")
+    .select("onboarding_tutorial_seen_at,onboarding_completed_at")
+    .eq("id", userId)
+    .single();
+  if (userError) throw userError;
+  if (user.onboarding_completed_at) return "/discover";
+  if (!user.onboarding_tutorial_seen_at) return "/onboarding";
+
+  const { data: business, error: businessError } = await supabase
+    .from("businesses")
+    .select("id,business_review_samples(id)")
+    .eq("owner_id", userId)
+    .maybeSingle();
+  if (businessError) throw businessError;
+  if (!business) return "/profile/edit?setup=1";
+  if (!business.business_review_samples?.length) return "/samples?setup=1";
+
+  const { error: completeError } = await supabase
+    .from("users")
+    .update({ onboarding_completed_at: new Date().toISOString() })
+    .eq("id", userId);
+  if (completeError) throw completeError;
+  return "/discover";
 }
 
 export async function getReferralStats(userId: string) {

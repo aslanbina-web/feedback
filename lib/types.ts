@@ -7,6 +7,11 @@ export type AppUser = {
   daily_give_limit: number;
   daily_receive_limit: number;
   plan_expires_at: string;
+  plan_started_at: string;
+  plan_give_limit: number;
+  plan_receive_limit: number;
+  onboarding_tutorial_seen_at: string | null;
+  onboarding_completed_at: string | null;
   referral_code: string;
 };
 
@@ -50,9 +55,13 @@ export type DailyStats = {
   skipsRemaining: number;
 };
 
-export type MonthlyStats = {
+export type PlanStats = {
   gives: number;
   receives: number;
+  giveLimit: number;
+  receiveLimit: number;
+  periodStartedAt: string;
+  periodEndsAt: string;
 };
 
 export type AdminSubmission = {

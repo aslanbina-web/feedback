@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { getSessionUserId, getUserById } from "@/lib/auth";
-import { getDailyStats, getMonthlyStats } from "@/lib/data";
+import { getDailyStats, getOnboardingDestination, getPlanStats } from "@/lib/data";
 import { config } from "@/lib/config";
 import { AppNav } from "@/components/app-nav";
 import Image from "next/image";
@@ -27,9 +28,9 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ l
     return <LoginScreen message={message} lineAuthUrl={lineAuthUrl} />;
   }
 
-  const [user, stats, monthly] = await Promise.all([getUserById(userId), getDailyStats(userId), getMonthlyStats(userId)]);
+  const [user, stats, plan] = await Promise.all([getUserById(userId), getDailyStats(userId), getPlanStats(userId)]);
   if (!user) return <LoginScreen message={message} lineAuthUrl={lineAuthUrl} />;
-  const planDays = Math.max(0, Math.ceil((new Date(user.plan_expires_at).getTime() - Date.now()) / 86_400_000));
+  if (!user.onboarding_completed_at) redirect(await getOnboardingDestination(userId));
   return (
     <main className="shell">
       <header className="masthead"><span className="brand">GiveGet</span><div className="header-actions"><Link className="header-icon" href="/notifications" aria-label="Notifications"><UiIcon name="bell" /></Link></div></header>
@@ -37,11 +38,11 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ l
         <div className="home-tagline"><Image src="/giveget-star.svg" alt="GiveGet star" width={74} height={68} priority /><p>Good reviews.<br />Stronger businesses.</p></div>
         <section className="credit-panel"><span>Your Credits</span><strong><UiIcon name="star" />{user.credit_balance}</strong><Link href="/invite">Get More →</Link></section>
         <div className="daily-stats">
-          <div className="daily-stat give"><span className="daily-symbol"><UiIcon name="send" /></span><span>Gives Today</span><strong>{stats.gives} / 3</strong></div>
-          <div className="daily-stat receive"><span className="daily-symbol"><UiIcon name="heart" /></span><span>Receives Today</span><strong>{stats.receives} / 3</strong></div>
+          <div className="daily-stat give"><span className="daily-symbol"><UiIcon name="send" /></span><span>Reviews Given Today</span><strong>{stats.gives} used</strong><small>{Math.max(user.daily_give_limit - stats.gives, 0)} left · Daily limit {user.daily_give_limit}</small></div>
+          <div className="daily-stat receive"><span className="daily-symbol"><UiIcon name="heart" /></span><span>Reviews Received Today</span><strong>{stats.receives} received</strong><small>{Math.max(user.daily_receive_limit - stats.receives, 0)} left · Daily limit {user.daily_receive_limit}</small></div>
         </div>
         <Link className="button coral full home-cta" href="/discover">Leave a Review →</Link>
-        <section className="monthly-goal"><h2>Your Progress</h2><div><span>Monthly Goal</span><strong>{monthly.gives} / 30</strong></div><div className="progress-track"><span style={{ width: `${Math.min(monthly.gives / 30 * 100, 100)}%` }} /></div><small>Saved passes never expire.</small></section>
+        <section className="monthly-goal plan-usage"><h2>Free Plan Usage</h2><div><span>Reviews Given</span><strong>{plan.gives} of {plan.giveLimit} used</strong></div><div className="progress-track"><span style={{ width: `${Math.min(plan.gives / plan.giveLimit * 100, 100)}%` }} /></div><div><span>Reviews Received</span><strong>{plan.receives} of {plan.receiveLimit} used</strong></div><div className="progress-track receive"><span style={{ width: `${Math.min(plan.receives / plan.receiveLimit * 100, 100)}%` }} /></div><small>Your Free Plan includes up to {plan.giveLimit} reviews given and {plan.receiveLimit} reviews received during this plan period.</small></section>
         <aside className="home-tip"><span aria-hidden="true"><UiIcon name="star" /></span><p><strong>One thoughtful review matters.</strong><br />Support a local business today!</p></aside>
         {user.role === "admin" ? <p><Link className="admin-link" href="/admin">Open Admin Desk →</Link></p> : null}
       </div>

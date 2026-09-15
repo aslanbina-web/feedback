@@ -16,7 +16,7 @@ type Business = {
   business_review_samples?: Sample[];
 };
 
-export function SampleReviewManager({ business, preview = false }: { business: Business; preview?: boolean }) {
+export function SampleReviewManager({ business, preview = false, setup = false }: { business: Business; preview?: boolean; setup?: boolean }) {
   const router = useRouter();
   const [samples, setSamples] = useState(() => business.business_review_samples?.map((item) => item.sample_text) ?? []);
   const [draft, setDraft] = useState("");
@@ -63,7 +63,10 @@ export function SampleReviewManager({ business, preview = false }: { business: B
     const value = draft.trim();
     if (!value) return;
     const saved = await persist([...samples, value]);
-    if (saved) setDraft("");
+    if (saved) {
+      setDraft("");
+      if (setup) router.push("/discover");
+    }
   }
 
   async function removeSample(index: number) {
@@ -103,6 +106,7 @@ export function SampleReviewManager({ business, preview = false }: { business: B
         ))}
       </div>
       <aside className="sample-pool-note"><UiIcon name="star" /> When a giver accepts your card, one sample is chosen at random and removed from this available list.</aside>
+      {setup && samples.length > 0 ? <button className="button green full" type="button" onClick={() => router.push("/discover")}>Continue to Discover →</button> : null}
       <p className="form-message" aria-live="polite">{message}</p>
     </>
   );

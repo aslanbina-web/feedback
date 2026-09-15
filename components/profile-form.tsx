@@ -6,7 +6,7 @@ import { BUSINESS_CATEGORIES, getBusinessCategory, isBusinessCategory } from "@/
 
 type Business = { id?: string; name?: string; category?: string; city?: string; district?: string; generic_description?: string; review_url?: string; active?: boolean; business_review_samples?: { id: string; sample_text: string; created_at: string }[] } | null;
 
-export function ProfileForm({ business, preview = false, mode = "full" }: { business: Business; preview?: boolean; mode?: "full" | "samples" }) {
+export function ProfileForm({ business, preview = false, mode = "full", setup = false }: { business: Business; preview?: boolean; mode?: "full" | "samples"; setup?: boolean }) {
   const router = useRouter();
   const [message, setMessage] = useState("");
   const [category, setCategory] = useState(() => getBusinessCategory(business?.category).name);
@@ -38,7 +38,7 @@ export function ProfileForm({ business, preview = false, mode = "full" }: { busi
     setMessage(response.ok ? "Card saved." : result.error || "Could not save card.");
     if (response.ok) {
       router.refresh();
-      if (mode === "full") router.push("/profile");
+      if (mode === "full") router.push(setup ? "/samples?setup=1" : "/profile");
     }
   }
 
