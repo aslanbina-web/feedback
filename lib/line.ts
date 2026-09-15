@@ -29,11 +29,11 @@ export async function exchangeLineCode(code: string, redirectUri: string) {
   return { access_token: body.access_token, id_token: body.id_token };
 }
 
-export async function verifyLineIdentity(idToken: string, nonce: string): Promise<LineIdentity> {
+export async function verifyLineIdentity(idToken: string, nonce?: string): Promise<LineIdentity> {
   const response = await fetch("https://api.line.me/oauth2/v2.1/verify", {
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ id_token: idToken, client_id: config.lineChannelId, nonce }),
+    body: new URLSearchParams({ id_token: idToken, client_id: config.lineChannelId, ...(nonce ? { nonce } : {}) }),
     cache: "no-store",
     signal: AbortSignal.timeout(LINE_TIMEOUT_MS),
   });
@@ -46,10 +46,14 @@ export async function verifyLineIdentity(idToken: string, nonce: string): Promis
     name?: string;
     picture?: string;
   };
+  // nonce is only checked when we supplied one ourselves (the classic OAuth
+  // redirect flow). LIFF manages its own login state internally and doesn't
+  // give us a nonce to compare against, which matches LINE's own API: the
+  // nonce param is optional on this endpoint.
   if (
     payload.iss !== "https://access.line.me" ||
     payload.aud !== config.lineChannelId ||
-    payload.nonce !== nonce ||
+    (nonce !== undefined && payload.nonce !== nonce) ||
     typeof payload.sub !== "string" ||
     typeof payload.name !== "string"
   ) {
